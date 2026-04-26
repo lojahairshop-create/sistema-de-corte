@@ -691,33 +691,41 @@ with dxf_c2:
         </div>
         """, unsafe_allow_html=True)
         
-        if st.button("➕ Adicionar Material e Tempo Automático", type="primary"):
+        st.markdown("<br>", unsafe_allow_html=True)
+        q1, q2 = st.columns([1, 2])
+        mult_qtd = q1.number_input("Qtd Peças", min_value=1, value=1, step=1, key="qtd_dxf_box", help="Multiplica material e tempo")
+        
+        if q2.button("➕ Adicionar Lote Automático", type="primary", use_container_width=True):
             # Acumula o tempo global de corte
             if 'tempo_acumulado_corte' not in st.session_state:
                 st.session_state.tempo_acumulado_corte = 0.0
-            st.session_state.tempo_acumulado_corte += res['tempo_total_min']
+            
+            tempo_add = res['tempo_total_min'] * mult_qtd
+            st.session_state.tempo_acumulado_corte += tempo_add
             
             # Puxa dados geométricos para preencher a tabela
             tipo_aco = st.session_state.mat_dxf
             esp_m = st.session_state.esp_dxf / 1000.0
             x_m = res.get('largura_x', 0) / 1000.0
             y_m = res.get('altura_y', 0) / 1000.0
-            peso_calc = (esp_m * x_m * y_m) * 7850
+            peso_unit_calc = (esp_m * x_m * y_m) * 7850
+            peso_total_calc = peso_unit_calc * mult_qtd
             
             # Preço tabelado
             preco_sel = preco_inox_kg if "Inox" in tipo_aco else preco_aco_kg
             desc = f"Caixa DXF {st.session_state.esp_dxf}mm ({res.get('largura_x', 0):.0f}x{res.get('altura_y', 0):.0f})"
+            custo_calc = peso_total_calc * preco_sel
             
             st.session_state.lista_materiais.append({
-                'Qtd': 1,
+                'Qtd': mult_qtd,
                 'Descrição': desc,
                 'Tipo Aço': tipo_aco,
-                'Peso Unit. (kg)': round(peso_calc, 2),
-                'Peso Total (kg)': round(peso_calc, 2),
+                'Peso Unit. (kg)': round(peso_unit_calc, 2),
+                'Peso Total (kg)': round(peso_total_calc, 2),
                 'R$/kg': round(preco_sel, 2),
-                'Custo (R$)': round(peso_calc * preco_sel, 2)
+                'Custo (R$)': round(custo_calc, 2)
             })
-            st.success(f"Adicionado {peso_calc:.2f}kg e +{res['tempo_total_min']:.2f} min aos Custos Globais!")
+            st.success(f"Lote recebido: {mult_qtd} peças somam {peso_total_calc:.2f}kg e +{tempo_add:.2f} min aos CUSTOS!")
 
 # Nova Sub-seção de Nesting/Arranjo de Chapas
 if st.session_state.dxf_resultado:

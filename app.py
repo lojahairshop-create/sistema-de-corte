@@ -690,6 +690,34 @@ with dxf_c2:
             🔥 Furos: <b>{res['furos']} ({res['tempo_furo_min']:.2f} min)</b>
         </div>
         """, unsafe_allow_html=True)
+        
+        if st.button("➕ Adicionar Material e Tempo Automático", type="primary"):
+            # Acumula o tempo global de corte
+            if 'tempo_acumulado_corte' not in st.session_state:
+                st.session_state.tempo_acumulado_corte = 0.0
+            st.session_state.tempo_acumulado_corte += res['tempo_total_min']
+            
+            # Puxa dados geométricos para preencher a tabela
+            tipo_aco = st.session_state.mat_dxf
+            esp_m = st.session_state.esp_dxf / 1000.0
+            x_m = res.get('largura_x', 0) / 1000.0
+            y_m = res.get('altura_y', 0) / 1000.0
+            peso_calc = (esp_m * x_m * y_m) * 7850
+            
+            # Preço tabelado
+            preco_sel = preco_inox_kg if "Inox" in tipo_aco else preco_aco_kg
+            desc = f"Caixa DXF {st.session_state.esp_dxf}mm ({res.get('largura_x', 0):.0f}x{res.get('altura_y', 0):.0f})"
+            
+            st.session_state.lista_materiais.append({
+                'Qtd': 1,
+                'Descrição': desc,
+                'Tipo Aço': tipo_aco,
+                'Peso Unit. (kg)': round(peso_calc, 2),
+                'Peso Total (kg)': round(peso_calc, 2),
+                'R$/kg': round(preco_sel, 2),
+                'Custo (R$)': round(peso_calc * preco_sel, 2)
+            })
+            st.success(f"Adicionado {peso_calc:.2f}kg e +{res['tempo_total_min']:.2f} min aos Custos Globais!")
 
 # Nova Sub-seção de Nesting/Arranjo de Chapas
 if st.session_state.dxf_resultado:
@@ -915,18 +943,16 @@ with serv_c1:
         tec_corte = st.radio("Tecnologia", ["Aço Carbono", "Aço Inox / Laser"], key="tec_corte")
         tarifa_corte_sel = tarifa_corte_inox if "Inox" in tec_corte else tarifa_corte_carbono
 
-        # Se veio do DXF, preenche automaticamente
-        tempo_dxf = 0.0
-        if st.session_state.dxf_resultado:
-            tempo_dxf = st.session_state.dxf_resultado['tempo_total_min']
+        # Se o usuário apertar o botão de adicão automática no painel, ele pega o acumulador
+        tempo_acumulado = st.session_state.get('tempo_acumulado_corte', 0.0)
 
         t_corte = st.number_input(
             "Minutos de CORTE",
-            value=round(tempo_dxf, 2),
+            value=round(tempo_acumulado, 2),
             step=1.0,
             format="%.2f",
             key="t_corte",
-            help="Se processou um DXF, o valor é preenchido automaticamente."
+            help="Acumula os tempos enviandos pelo botão superior do DXF."
         )
 
     with st.container(border=True):

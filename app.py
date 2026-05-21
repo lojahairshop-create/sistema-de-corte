@@ -1,7 +1,7 @@
 import streamlit as st
 import math
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import io, json, os
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -84,6 +84,63 @@ with st.sidebar:
         preco_inox = st.number_input("Preço Inox (R$/kg)", value=float(cfg.get("p_inox", 32.0)), step=1.0, format="%.2f", key="p_inox", on_change=save_s, args=("p_inox",))
         preco_alum = st.number_input("Preço Alumínio (R$/kg)", value=float(cfg.get("p_alum", 25.0)), step=1.0, format="%.2f", key="p_alum", on_change=save_s, args=("p_alum",))
 
+    with st.expander("📄 Configurações do PDF (Emissor/Logo)", expanded=False):
+        if 'logo_uploader_key' not in st.session_state:
+            st.session_state.logo_uploader_key = 0
+
+        logo_bytes = None
+        if os.path.exists("logo_customizado.bin"):
+            try:
+                with open("logo_customizado.bin", "rb") as f:
+                    logo_bytes = f.read()
+            except:
+                pass
+
+        logo_uploaded = st.file_uploader("Logo da Empresa (PNG/JPG)", type=["png", "jpg", "jpeg"], key=f"logo_uploader_{st.session_state.logo_uploader_key}")
+        if logo_uploaded is not None:
+            logo_bytes = logo_uploaded.getvalue()
+            try:
+                with open("logo_customizado.bin", "wb") as f:
+                    f.write(logo_bytes)
+            except:
+                pass
+            st.rerun()
+
+        if logo_bytes is not None:
+            st.image(logo_bytes, caption="Logotipo do PDF", width=150)
+            if st.button("🗑️ Remover Logotipo Customizado", key="btn_remove_logo"):
+                if os.path.exists("logo_customizado.bin"):
+                    try:
+                        os.remove("logo_customizado.bin")
+                    except:
+                        pass
+                st.session_state.logo_uploader_key += 1
+                st.rerun()
+
+        emissor_nome = st.text_input("Nome da Empresa", value=cfg.get("em_nome", "2R CORTE LASER"), key="em_nome", on_change=save_s, args=("em_nome",))
+        emissor_resp = st.text_input("Responsável / Vendedor", value=cfg.get("em_resp", "Wellington Rafael"), key="em_resp", on_change=save_s, args=("em_resp",))
+        emissor_end = st.text_area("Endereço", value=cfg.get("em_end", "Av. Alexandre José Barbosa, 215 - Jardim São Luiz II\nItatiba - SP, 13.253-080"), key="em_end", on_change=save_s, args=("em_end",))
+        emissor_tel = st.text_input("Telefone", value=cfg.get("em_tel", "(11) 4524-3463 – Ramal: 219"), key="em_tel", on_change=save_s, args=("em_tel",))
+        emissor_cel = st.text_input("Celular", value=cfg.get("em_cel", "(11) 98994-4136"), key="em_cel", on_change=save_s, args=("em_cel",))
+        emissor_email = st.text_input("E-mail", value=cfg.get("em_email", "comercial@2rcortelaser.com.br"), key="em_email", on_change=save_s, args=("em_email",))
+
+    with st.expander("📜 Termos e Condições do PDF", expanded=False):
+        cond_prazo = st.text_input("Prazo de Entrega", value=cfg.get("cond_prazo", "7 Dias úteis após recebimento do pedido de compra"), key="cond_prazo", on_change=save_s, args=("cond_prazo",))
+        cond_pgto = st.text_input("Forma de Pagamento", value=cfg.get("cond_pgto", "A Combinar"), key="cond_pgto", on_change=save_s, args=("cond_pgto",))
+        cond_minimo = st.number_input("Pedido Mínimo (R$)", value=float(cfg.get("cond_minimo", 500.0)), step=50.0, key="cond_minimo", on_change=save_s, args=("cond_minimo",))
+        cond_frete = st.text_input("Frete", value=cfg.get("cond_frete", "FOB"), key="cond_frete", on_change=save_s, args=("cond_frete",))
+        cond_impostos = st.text_area("Impostos Descrição", value=cfg.get("cond_impostos", "ICMS INCLUSO - PIS/COFINS INCLUSO\nIPI: 3.25% A INCLUIR"), key="cond_impostos", on_change=save_s, args=("cond_impostos",))
+        cond_comentarios = st.text_area("Mensagem de Observações / Totais", value=cfg.get("cond_coment", "Venda IPI - 3,25% / Benef. Isento"), key="cond_coment", on_change=save_s, args=("cond_coment",))
+        
+        st.markdown("**Texto das Condições Gerais (7 Itens):**")
+        c1 = st.text_area("Item 1", value=cfg.get("c1", "Os desenhos deverão ser fornecidos no formato .DXF ou .DWG em escala 1:1 com a respectiva indicação de revisão. Peças cortadas fora da sua verdadeira grandeza serão de responsabilidade do cliente."), key="c1", on_change=save_s, args=("c1",))
+        c2 = st.text_area("Item 2", value=cfg.get("c2", "TOLERANCIA CORTE <=0,2mm e <=1,00mm | TOLERÂNCIA DOBRA: +/- 1,5mm."), key="c2", on_change=save_s, args=("c2",))
+        c3 = st.text_area("Item 3", value=cfg.get("c3", "Furos com diâmetro menor que a espessura da chapa serão somente marcados."), key="c3", on_change=save_s, args=("c3",))
+        c4 = st.text_area("Item 4", value=cfg.get("c4", "A produção somente será iniciada quando:\n* Recebido pedido do cliente E / OU recebimento da matéria-prima (no caso de beneficiamento).\n* Recebido a confirmação por e-mail aprovando a proposta comercial."), key="c4", on_change=save_s, args=("c4",))
+        c5 = st.text_area("Item 5", value=cfg.get("c5", "Horário para entrega e retirada de mercadorias: 08h às 12h | 14h às 17h."), key="c5", on_change=save_s, args=("c5",))
+        c6 = st.text_area("Item 6", value=cfg.get("c6", "No processo de corte pode haver empenamento das peças (algo normal devida a alta temperatura). O cliente deve especificar no ato da cotação a necessidade de mantê-las planas."), key="c6", on_change=save_s, args=("c6",))
+        c7 = st.text_area("Item 7", value=cfg.get("c7", "Prezados clientes, concluído o pedido de BENEFICIAMENTO, a sucata gerada será mantida em até, no máximo, 4 dias úteis. Após este período será descartada junto com outras sucatas pelo motivo de logística e espaço. Dessa forma, tornando-se de propriedade da empresa."), key="c7", on_change=save_s, args=("c7",))
+
 taxas_impostos = {'icms': tx_icms, 'ipi': tx_ipi, 'pis': tx_pis, 'cofins': tx_cofins, 'csll': tx_csll, 'irpj': tx_irpj}
 tarifas = {'corte_laser': tar_corte, 'setup': tar_setup, 'dobra': tar_dobra, 'caldeiraria': tar_caldeiraria, 'solda': tar_solda, 'guilhotina': tar_guilhotina, 'usinagem_int': tar_usinagem, 'montagem': tar_montagem}
 precos_material = {'Aço Carbono': preco_aco, 'Aço Inox': preco_inox, 'Alumínio': preco_alum}
@@ -100,13 +157,27 @@ config_global = {
 st.markdown('<div class="section-title">📋 Dados do Orçamento</div>', unsafe_allow_html=True)
 pc1, pc2, pc3, pc4 = st.columns([2, 2, 1, 1])
 with pc1:
-    nome_projeto = st.text_input("Projeto / Orçamento Nº", "Orçamento 001", key="nome_proj")
+    nome_projeto = st.text_input("Projeto / Orçamento Nº", cfg.get("nome_proj", "Orçamento 001"), key="nome_proj", on_change=save_s, args=("nome_proj",))
 with pc2:
-    nome_cliente = st.text_input("Cliente", "", key="nome_cli")
+    nome_cliente = st.text_input("Cliente", cfg.get("nome_cli", ""), key="nome_cli", on_change=save_s, args=("nome_cli",))
 with pc3:
-    orcamentista = st.text_input("Orçamentista", "", key="orcam")
+    orcamentista = st.text_input("Orçamentista", cfg.get("orcam", ""), key="orcam", on_change=save_s, args=("orcam",))
 with pc4:
-    tipo_venda = st.selectbox("Tipo de Venda", ["Revenda", "Venda Direta", "Industrialização"], key="tipo_venda")
+    tipo_venda = st.selectbox("Tipo de Venda", ["Revenda", "Venda Direta", "Industrialização"], index=["Revenda", "Venda Direta", "Industrialização"].index(cfg.get("tipo_venda", "Revenda")), key="tipo_venda", on_change=save_s, args=("tipo_venda",))
+
+pc5, pc6, pc7, pc8 = st.columns([2.5, 1.5, 1, 1])
+with pc5:
+    cliente_endereco = st.text_input("Endereço do Cliente", cfg.get("cliente_end", "Singapura"), key="cliente_end", on_change=save_s, args=("cliente_end",))
+with pc6:
+    cliente_telefone = st.text_input("Telefone do Cliente", cfg.get("cliente_tel", ""), key="cliente_tel", on_change=save_s, args=("cliente_tel",))
+with pc7:
+    data_criacao_input = st.date_input("Data de Criação", value=datetime.now())
+with pc8:
+    validade_dias = st.number_input("Validade (dias)", min_value=1, value=int(cfg.get("validade_dias", 7)), key="validade_dias", on_change=save_s, args=("validade_dias",))
+
+data_vencimento_input = data_criacao_input + timedelta(days=validade_dias)
+data_criacao_str = data_criacao_input.strftime('%d/%m/%Y')
+data_vencimento_str = data_vencimento_input.strftime('%d/%m/%Y')
 
 st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
 
@@ -146,6 +217,7 @@ with tab_dxf:
                                 'perimetro': round(res.get('perimetro', 400.0), 1),
                                 'n_entradas': int(res.get('furos', 4)),
                                 'preco_kg': 0.0, # Uses default
+                                'dxf_bytes': dxf_file.getvalue(),
                                 'tempos': {
                                     'corte_laser': 0.0, # uses formula
                                     'setup': 0.0,
@@ -180,6 +252,7 @@ with tab_dxf:
                 'perimetro': 400.0,
                 'n_entradas': 4,
                 'preco_kg': 0.0, # Uses default
+                'dxf_bytes': None,
                 'tempos': {
                     'corte_laser': 0.0,
                     'setup': 0.0,
@@ -250,6 +323,7 @@ with tab_manual:
                 'perimetro': round(m_perim, 1),
                 'n_entradas': m_entr,
                 'preco_kg': m_pr_kg,
+                'dxf_bytes': None,
                 'tempos': {
                     'corte_laser': 0.0,
                     'setup': m_setup,
@@ -337,6 +411,7 @@ if st.session_state.itens:
         # Save back the grid edits to the session state
         updated_itens = []
         for idx, r in edited_df.iterrows():
+            orig_item = st.session_state.itens[idx] if idx < len(st.session_state.itens) else {}
             updated_itens.append({
                 'descricao': str(r['Descrição']),
                 'qtd': int(r['Qtd']),
@@ -347,6 +422,7 @@ if st.session_state.itens:
                 'perimetro': float(r['Perímetro (mm)']),
                 'n_entradas': int(r['Entradas']),
                 'preco_kg': float(r['Preço R$/kg']),
+                'dxf_bytes': orig_item.get('dxf_bytes', None),
                 'tempos': {
                     'corte_laser': float(r['Corte Override (min)']),
                     'setup': float(r['Setup (min)']),
@@ -509,7 +585,7 @@ RESUMO DOS TOTAIS:
   VALOR TOTAL NF:     R$ {tot_nf:,.2f}
 {'='*60}
 """
-        ex1, ex2 = st.columns(2)
+        ex1, ex2, ex3 = st.columns(3)
         with ex1:
             st.download_button("📄 Baixar TXT", txt_rel, f"Orcamento_{nome_projeto}_{datetime.now().strftime('%Y%m%d')}.txt", mime="text/plain", use_container_width=True)
         with ex2:
@@ -522,6 +598,49 @@ RESUMO DOS TOTAIS:
                 st.download_button("📊 Baixar Excel", buf.getvalue(), f"Orcamento_{nome_projeto}_{datetime.now().strftime('%Y%m%d')}.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
             except Exception as e:
                 st.warning(f"Erro ao gerar Excel: {e}")
+        with ex3:
+            try:
+                from gerador_pdf import gerar_orcamento_pdf
+                pdf_logo_bytes = None
+                if os.path.exists("logo_customizado.bin"):
+                    try:
+                        with open("logo_customizado.bin", "rb") as f:
+                            pdf_logo_bytes = f.read()
+                    except:
+                        pass
+                if logo_uploaded is not None:
+                    pdf_logo_bytes = logo_uploaded.getvalue()
+                client_dict = {
+                    'nome': nome_cliente,
+                    'endereco': cliente_endereco,
+                    'telefone': cliente_telefone,
+                    'num_orcamento': nome_projeto,
+                    'data_criacao': data_criacao_str,
+                    'data_vencimento': data_vencimento_str
+                }
+                emissor_dict = {
+                    'nome': emissor_nome,
+                    'responsavel': emissor_resp,
+                    'endereco': emissor_end,
+                    'telefone': emissor_tel,
+                    'celular': emissor_cel,
+                    'email': emissor_email
+                }
+                prazos_dict = {
+                    'prazo_entrega': cond_prazo,
+                    'forma_pagamento': cond_pgto,
+                    'pedido_minimo': cond_minimo,
+                    'frete': cond_frete,
+                    'impostos_descricao': cond_impostos,
+                    'comentarios': cond_comentarios,
+                    'condicoes_texto': [c1, c2, c3, c4, c5, c6, c7]
+                }
+                pdf_data = gerar_orcamento_pdf(st.session_state.itens, config_global, client_dict, emissor_dict, prazos_dict, pdf_logo_bytes)
+                st.download_button("📄 Baixar PDF do Orçamento", pdf_data, f"Orcamento_{nome_projeto}_{datetime.now().strftime('%Y%m%d')}.pdf", mime="application/pdf", use_container_width=True)
+            except Exception as e:
+                st.warning(f"Erro ao gerar PDF: {e}")
+                import traceback
+                traceback.print_exc()
 
     # --- TAB 3: NESTING SIMULATION ---
     with tab_nesting:

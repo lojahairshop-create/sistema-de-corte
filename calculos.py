@@ -4,187 +4,259 @@ Todas as fórmulas foram reverse-engineered da planilha original.
 """
 import math
 
-DENSIDADE_PADRAO = 7860  # kg/m³ (confirmado da planilha)
-GAP_PADRAO = 5  # mm entre peças
-MARGEM_AREA = 10  # mm cada lado para cálculo de área
+# Lookup tables for cutting speed (velocidade) and peck (tempo de furo)
+# Format: thickness_mm -> (speed_mm_min, peck_seconds)
+TABELA_INOX = {
+    1.0: (7800.0, 1.0),
+    1.5: (6300.0, 1.1),
+    2.0: (5300.0, 1.1),
+    2.5: (4500.0, 1.2),
+    3.0: (3800.0, 1.2),
+    3.18: (3528.0, 1.3),
+    4.0: (2450.0, 1.4),
+    4.75: (2000.0, 1.5),
+    5.0: (1600.0, 1.8),
+    6.35: (1200.0, 2.0),
+    8.0: (500.0, 2.5),
+    10.0: (350.0, 3.0),
+    12.7: (225.0, 4.0),
+    15.87: (0.0, 0.0),
+    19.0: (0.0, 0.0)
+}
+
+TABELA_ACO_CARBONO = {
+    1.0: (6500.0, 1.0),
+    1.5: (5800.0, 1.0),
+    2.0: (4900.0, 1.0),
+    2.5: (3724.0, 1.0),
+    3.0: (3600.0, 1.0),
+    3.18: (3528.0, 1.0),
+    4.0: (2646.0, 1.0),
+    4.75: (2352.0, 1.5),
+    6.35: (2058.0, 2.0),
+    8.0: (1666.0, 2.5),
+    10.0: (1200.0, 3.0),
+    12.7: (1078.0, 3.0),
+    15.87: (780.0, 6.0),
+    19.0: (600.0, 10.0)
+}
+
+TABELA_ALUMINIO = {
+    1.0: (8750.0, 1.0),
+    1.5: (6600.0, 1.0),
+    2.0: (5390.0, 1.0),
+    2.5: (3724.0, 1.0),
+    3.18: (2450.0, 1.0),
+    4.0: (1764.0, 1.2),
+    4.75: (1274.0, 1.2),
+    6.35: (882.0, 1.5),
+    8.0: (300.0, 1.5),
+    10.0: (0.0, 0.0),
+    12.7: (0.0, 0.0),
+    15.87: (0.0, 0.0),
+    19.0: (0.0, 0.0)
+}
+
+
+def get_densidade_material(material):
+    """Retorna a densidade correta baseada no material (g/cm³)."""
+    mat_lower = str(material).lower()
+    if 'inox' in mat_lower:
+        return 8.2
+    elif 'alum' in mat_lower:
+        return 3.2
+    else:
+        return 7.86  # Aço Carbono ou padrão
+
+
+def lookup_velocidade_e_peck(material, espessura):
+    """Realiza a busca aproximada (tipo VLOOKUP True) para velocidade e peck."""
+    mat_lower = str(material).lower()
+    if 'inox' in mat_lower:
+        tabela = TABELA_INOX
+    elif 'alum' in mat_lower:
+        tabela = TABELA_ALUMINIO
+    else:
+        tabela = TABELA_ACO_CARBONO
+        
+    keys = sorted(tabela.keys())
+    matched_key = keys[0]
+    for k in keys:
+        if k <= espessura:
+            matched_key = k
+        else:
+            break
+            
+    return tabela[matched_key]
 
 
 def calcular_area_peca(largura_mm, compr_mm):
-    """Área com margem de 10mm cada lado (m²). Fórmula da planilha col 13."""
-    return ((largura_mm + 2 * MARGEM_AREA) / 1000) * ((compr_mm + 2 * MARGEM_AREA) / 1000)
+    """Área com margem de 10mm em cada lado (m²). Fórmula da planilha col 21 (V)."""
+    return ((largura_mm + 20) / 1000.0) * ((compr_mm + 20) / 1000.0)
 
 
-def calcular_peso_unitario(largura_mm, compr_mm, espessura_mm, densidade=DENSIDADE_PADRAO):
-    """Peso unitário da peça pura (kg). Fórmula da planilha col 14."""
-    return largura_mm * compr_mm * espessura_mm * densidade / 1e9
+def calcular_peso_unitario(largura_mm, compr_mm, espessura_mm, material):
+    """Peso unitário da peça (kg). Fórmula da planilha col 22 (W)."""
+    dens = get_densidade_material(material)
+    return espessura_mm * (largura_mm + espessura_mm) * (compr_mm + espessura_mm) * dens / 1000000.0
 
 
-def calcular_peso_total(largura_mm, compr_mm, espessura_mm, qtd, gap=GAP_PADRAO, densidade=DENSIDADE_PADRAO):
-    """Peso total incluindo gap (kg). Fórmula da planilha col 18."""
-    return (largura_mm + gap) * (compr_mm + gap) * espessura_mm * densidade / 1e9 * qtd
+def calcular_peso_total(largura_mm, compr_mm, espessura_mm, qtd, material):
+    """Peso total considerando gap/margem (kg). Fórmula da planilha col 26 (AA)."""
+    dens = get_densidade_material(material)
+    margin = espessura_mm if espessura_mm > 5.0 else 5.0
+    return qtd * (espessura_mm * (largura_mm + margin) * (compr_mm + margin) * dens / 1000000.0)
 
 
-def calcular_peso_chapa(chapa_l_mm, chapa_c_mm, espessura_mm, densidade=DENSIDADE_PADRAO):
-    """Peso da chapa inteira (kg). Fórmula da planilha col 19."""
-    return chapa_l_mm * chapa_c_mm * espessura_mm * densidade / 1e9
+def calcular_peso_chapa(chapa_l_mm, chapa_c_mm, espessura_mm):
+    """Peso da chapa (kg). Fórmula da planilha col 27 (AB)."""
+    return (espessura_mm * chapa_l_mm * chapa_c_mm * 7.86 / 1000000.0)
 
 
-def calcular_pecas_por_chapa(largura_mm, compr_mm, chapa_l_mm, chapa_c_mm, gap=GAP_PADRAO):
-    """Peças por chapa (arranjo retangular). Fórmula da planilha col 20."""
-    arranjo1 = int(chapa_l_mm / (largura_mm + gap)) * int(chapa_c_mm / (compr_mm + gap))
-    arranjo2 = int(chapa_l_mm / (compr_mm + gap)) * int(chapa_c_mm / (largura_mm + gap))
-    return max(arranjo1, arranjo2)
-
-
-def calcular_qtd_chapas(qtd_pecas, pecas_por_chapa):
-    """Quantidade de chapas necessárias. Fórmula da planilha col 21."""
-    if pecas_por_chapa <= 0:
+def calcular_pecas_por_chapa(largura_mm, compr_mm, espessura_mm, chapa_l_mm, chapa_c_mm):
+    """Peças por chapa. Fórmula da planilha col 28 (AC)."""
+    if (largura_mm + espessura_mm) <= 0 or (compr_mm + espessura_mm) <= 0:
         return 0
-    return math.ceil(qtd_pecas / pecas_por_chapa)
-
-
-def calcular_sobra_chapa(qtd_pecas, pecas_por_chapa, qtd_chapas):
-    """Sobra de peças na chapa. Fórmula da planilha col 22."""
-    return pecas_por_chapa * qtd_chapas - qtd_pecas
-
-
-def calcular_retalho_kg(sobra, peso_unitario):
-    """Retalho em kg. Fórmula da planilha col 23."""
-    return sobra * peso_unitario
-
-
-def calcular_custo_mp(peso_total, preco_kg):
-    """Custo matéria prima. Fórmula da planilha col 25."""
-    return peso_total * preco_kg
-
-
-def calcular_total_fabricacao(tempos, tarifas):
-    """
-    Total de fabricação em R$.
-    tempos: dict com chaves 'corte_laser', 'setup', 'dobra', 'caldeiraria', 
-            'solda', 'guilhotina', 'usinagem_int', 'montagem' (em minutos)
-    tarifas: dict com as mesmas chaves (R$/hora)
-    """
-    total = 0.0
-    for op in tempos:
-        t_min = tempos.get(op, 0) or 0
-        tarifa_h = tarifas.get(op, 0) or 0
-        total += (t_min / 60.0) * tarifa_h
-    return total
-
-
-def calcular_custo_basico(custo_mp, total_fabricacao, custos_extras=None):
-    """Custo básico total (col 45) = Custo MP + Total Fabricação + extras."""
-    extras = 0.0
-    if custos_extras:
-        extras = sum(v for v in custos_extras.values() if v)
-    return custo_mp + total_fabricacao + extras
-
-
-def calcular_fator_impostos(icms, pis, cofins, csll, irpj):
-    """Fator de cálculo de impostos (SEM IPI). Fórmula da planilha."""
-    total_cascata = icms + pis + cofins + csll + irpj
-    return 1 - total_cascata
-
-
-def calcular_preco_venda(custo_basico, margem_lucro, fator_impostos):
-    """
-    Preço de venda com impostos (sem IPI).
-    venda_sem_imp = custo_basico * (1 + margem)
-    preco = venda_sem_imp / fator
-    """
-    venda_sem_imp = custo_basico * (1 + margem_lucro)
-    if fator_impostos <= 0.05:
-        fator_impostos = 0.05
-    preco_com_imp = venda_sem_imp / fator_impostos
-    return venda_sem_imp, preco_com_imp
-
-
-def calcular_impostos_detalhados(preco_com_imp, taxas):
-    """
-    Calcula cada imposto individualmente.
-    taxas: dict com 'icms', 'ipi', 'pis', 'cofins', 'csll', 'irpj'
-    Retorna dict com valores em R$.
-    """
-    result = {}
-    for nome, taxa in taxas.items():
-        result[nome] = preco_com_imp * taxa
-    return result
-
-
-def calcular_valor_nf(preco_com_imp, valor_ipi):
-    """Valor total da NF = Preço + IPI (IPI somado por fora)."""
-    return preco_com_imp + valor_ipi
-
-
-def calcular_comissao(venda_sem_imp, taxa_comissao):
-    """Comissão = Venda sem impostos × taxa."""
-    return venda_sem_imp * taxa_comissao
+    val = math.floor((chapa_l_mm - 10) / (largura_mm + espessura_mm)) * math.floor((chapa_c_mm - 10) / (compr_mm + espessura_mm))
+    return max(0, val)
 
 
 def calcular_item_completo(item_data, config):
-    """
-    Calcula TODOS os campos de um item, replicando a planilha inteira.
+    """Calcula todos os campos de um item de acordo com a planilha."""
+    qtd = float(item_data.get('qtd', 1.0) or 1.0)
+    largura = float(item_data.get('largura', 0.0) or 0.0)
+    compr = float(item_data.get('compr', 0.0) or 0.0)
+    espessura = float(item_data.get('espessura', 3.18) or 3.18)
+    perimetro = float(item_data.get('perimetro', 0.0) or 0.0)
+    n_entradas = float(item_data.get('n_entradas', 0.0) or 0.0)
+    material = str(item_data.get('material', 'Aço Carbono') or 'Aço Carbono')
+    preco_kg = float(item_data.get('preco_kg', 0.0) or 0.0)
+    if preco_kg == 0.0:
+        precos_mat = config.get('precos_material', {})
+        mat_key = 'Aço Carbono'
+        if 'inox' in material.lower():
+            mat_key = 'Aço Inox'
+        elif 'alum' in material.lower():
+            mat_key = 'Alumínio'
+        preco_kg = precos_mat.get(mat_key, 0.0)
     
-    item_data: dict com campos de entrada do item
-    config: dict com configurações globais (impostos, tarifas, etc.)
+    chapa_l = float(item_data.get('chapa_l', 1200.0) or 1200.0)
+    chapa_c = float(item_data.get('chapa_c', 2400.0) or 2400.0)
     
-    Retorna: dict com todos os campos calculados
-    """
-    # Extrair dados do item
-    qtd = item_data.get('qtd', 1) or 1
-    largura = item_data.get('largura', 0) or 0
-    compr = item_data.get('compr', 0) or 0
-    espessura = item_data.get('espessura', 0) or 0
-    chapa_l = item_data.get('chapa_l', 1200) or 1200
-    chapa_c = item_data.get('chapa_c', 2400) or 2400
-    preco_kg = item_data.get('preco_kg', 0) or 0
-    densidade = config.get('densidade', DENSIDADE_PADRAO)
-    gap = config.get('gap', GAP_PADRAO)
+    # Velocidade e Peck automático
+    speed, peck = lookup_velocidade_e_peck(material, espessura)
     
-    # Cálculos geométricos
-    area = calcular_area_peca(largura, compr) if largura > 0 and compr > 0 else 0
-    peso_unit = calcular_peso_unitario(largura, compr, espessura, densidade) if largura > 0 else 0
-    peso_total = calcular_peso_total(largura, compr, espessura, qtd, gap, densidade) if largura > 0 else 0
-    peso_chapa = calcular_peso_chapa(chapa_l, chapa_c, espessura, densidade) if espessura > 0 else 0
+    # Área
+    area = calcular_area_peca(largura, compr)
     
-    pcs_chapa = calcular_pecas_por_chapa(largura, compr, chapa_l, chapa_c, gap) if largura > 0 and compr > 0 else 0
-    qtd_chapas = calcular_qtd_chapas(qtd, pcs_chapa)
-    sobra = calcular_sobra_chapa(qtd, pcs_chapa, qtd_chapas) if pcs_chapa > 0 else 0
-    retalho = calcular_retalho_kg(sobra, peso_unit)
+    # Pesos
+    peso_unit = calcular_peso_unitario(largura, compr, espessura, material)
+    peso_total = calcular_peso_total(largura, compr, espessura, qtd, material)
+    peso_chapa = calcular_peso_chapa(chapa_l, chapa_c, espessura)
     
-    # Custos
-    custo_mp = calcular_custo_mp(peso_total, preco_kg)
+    # Rendimento de Chapas
+    pcs_chapa = calcular_pecas_por_chapa(largura, compr, espessura, chapa_l, chapa_c)
+    qtd_chapas = math.ceil(qtd / pcs_chapa) if pcs_chapa > 0 else 0
+    sobra = (qtd_chapas * pcs_chapa) - qtd if pcs_chapa > 0 else 0
+    retalho = sobra * peso_unit
     
-    tempos = item_data.get('tempos', {})
-    tarifas = config.get('tarifas', {})
-    total_fab = calcular_total_fabricacao(tempos, tarifas)
-    
-    custos_extras = item_data.get('custos_extras', {})
-    custo_basico = calcular_custo_basico(custo_mp, total_fab, custos_extras)
-    
-    # Preço de venda
-    margem = config.get('margem_lucro', 0.30)
+    # Custo de Matéria Prima (com IPI)
     taxas_imp = config.get('taxas_impostos', {})
-    fator = calcular_fator_impostos(
-        taxas_imp.get('icms', 0.18), taxas_imp.get('pis', 0.0065),
-        taxas_imp.get('cofins', 0.03), taxas_imp.get('csll', 0.0108),
-        taxas_imp.get('irpj', 0.012)
-    )
+    ipi_rate = taxas_imp.get('ipi', 0.05)
+    custo_mp = peso_total * preco_kg * (1.0 + ipi_rate)
     
-    venda_sem_imp, preco_com_imp = calcular_preco_venda(custo_basico, margem, fator)
-    preco_total = preco_com_imp * qtd
+    # Tempo de Corte (AI)
+    # Se já vier preenchido e for diferente de zero, respeita a entrada do usuário
+    tempos = item_data.get('tempos', {})
+    corte_user = tempos.get('corte_laser')
+    if corte_user is not None and corte_user > 0.0:
+        corte_laser_time = float(corte_user)
+    else:
+        if speed > 0 and perimetro > 0:
+            corte_laser_time = math.ceil((((perimetro / speed) * 60.0 + n_entradas * peck) * qtd) / 60.0)
+        else:
+            corte_laser_time = 0.0
+            
+    # Tempos operacionais (unitários, multiplicados pela quantidade no cálculo final)
+    op_times = {
+        'setup': float(tempos.get('setup', 0.0) or 0.0),
+        'dobra': float(tempos.get('dobra', 0.0) or 0.0),
+        'caldeiraria': float(tempos.get('caldeiraria', 0.0) or 0.0),
+        'solda': float(tempos.get('solda', 0.0) or 0.0),
+        'guilhotina': float(tempos.get('guilhotina', 0.0) or 0.0),
+        'usinagem_int': float(tempos.get('usinagem_int', 0.0) or 0.0),
+        'montagem': float(tempos.get('montagem', 0.0) or 0.0)
+    }
     
-    impostos = calcular_impostos_detalhados(preco_com_imp, taxas_imp)
-    valor_nf = calcular_valor_nf(preco_com_imp, impostos.get('ipi', 0))
-    valor_nf_total = valor_nf * qtd
+    # Total Fabricação (corte + operações unitárias * qtd)
+    tarifas = config.get('tarifas', {})
+    corte_rate = tarifas.get('corte_laser', 450.0)
+    setup_rate = tarifas.get('setup', 60.0)
+    dobra_rate = tarifas.get('dobra', 100.0)
+    cald_rate = tarifas.get('caldeiraria', 100.0)
+    solda_rate = tarifas.get('solda', 100.0)
+    guil_rate = tarifas.get('guilhotina', 68.0)
+    usin_rate = tarifas.get('usinagem_int', 80.0)
+    mont_rate = tarifas.get('montagem', 80.0)
     
-    taxa_comissao = config.get('taxa_comissao', 0.03)
-    comissao = calcular_comissao(venda_sem_imp, taxa_comissao)
+    total_fab = (
+        corte_laser_time * corte_rate +
+        qtd * (
+            op_times['setup'] * setup_rate +
+            op_times['dobra'] * dobra_rate +
+            op_times['caldeiraria'] * cald_rate +
+            op_times['solda'] * solda_rate +
+            op_times['guilhotina'] * guil_rate +
+            op_times['usinagem_int'] * usin_rate +
+            op_times['montagem'] * mont_rate
+        )
+    ) / 60.0
     
-    total_tributos = sum(v for k, v in impostos.items() if k != 'csll' and k != 'irpj')
+    # Custos Extras
+    custos_extras = item_data.get('custos_extras', {})
+    extras = sum(float(v or 0.0) for v in custos_extras.values())
+    
+    # Custo Básico Total
+    custo_basico = custo_mp + total_fab + extras
+    
+    # Preço de Venda
+    margem = config.get('margem_lucro', 0.30)
+    venda_sem_imp = custo_basico * (1.0 + margem)
+    
+    icms_rate = taxas_imp.get('icms', 0.18)
+    pis_rate = taxas_imp.get('pis', 0.0065)
+    cofins_rate = taxas_imp.get('cofins', 0.03)
+    csll_rate = taxas_imp.get('csll', 0.0108)
+    irpj_rate = taxas_imp.get('irpj', 0.012)
+    
+    fator = 1.0 - (icms_rate + pis_rate + cofins_rate + csll_rate + irpj_rate)
+    if fator <= 0.05:
+        fator = 0.05
+        
+    preco_com_imp = venda_sem_imp / fator  # Preço total com impostos sem IPI
+    preco_unit = preco_com_imp / qtd
+    
+    # Detalhamento de impostos
+    icms_val = preco_com_imp * icms_rate
+    pis_val = preco_com_imp * pis_rate
+    cofins_val = preco_com_imp * cofins_rate
+    csll_val = preco_com_imp * csll_rate
+    irpj_val = preco_com_imp * irpj_rate
+    ipi_val = preco_com_imp * ipi_rate
+    
+    total_tributos = icms_val + ipi_val + pis_val + cofins_val
+    
+    # NF (IPI adicionado por fora)
+    valor_nf_total = preco_com_imp * (1.0 + ipi_rate)
+    valor_nf_unit = valor_nf_total / qtd
+    
+    # Comissão
+    commission_rate = config.get('taxa_comissao', 0.03)
+    comissao = venda_sem_imp * commission_rate
     
     return {
+        'speed': speed,
+        'peck': peck,
         'area': area,
         'peso_unit': peso_unit,
         'peso_total': peso_total,
@@ -194,15 +266,28 @@ def calcular_item_completo(item_data, config):
         'sobra': sobra,
         'retalho': retalho,
         'custo_mp': custo_mp,
+        'corte_laser_time': corte_laser_time,
         'total_fab': total_fab,
         'custo_basico': custo_basico,
         'venda_sem_imp': venda_sem_imp,
         'preco_com_imp': preco_com_imp,
-        'preco_total': preco_total,
-        'impostos': impostos,
+        'preco_unit_com_imp': preco_unit,
+        'impostos': {
+            'icms': icms_val,
+            'ipi': ipi_val,
+            'pis': pis_val,
+            'cofins': cofins_val,
+            'csll': csll_val,
+            'irpj': irpj_val
+        },
         'total_tributos': total_tributos,
-        'valor_nf': valor_nf,
+        'valor_nf': valor_nf_unit,
         'valor_nf_total': valor_nf_total,
         'comissao': comissao,
         'fator_impostos': fator,
     }
+
+
+def calcular_item_completo_v2(item_data, config):
+    """Alias para compatibilidade com os testes unitários."""
+    return calcular_item_completo(item_data, config)

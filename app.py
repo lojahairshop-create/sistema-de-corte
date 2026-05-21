@@ -130,6 +130,7 @@ with tab_dxf:
             if not EZDXF_DISPONIVEL:
                 st.error("Biblioteca ezdxf não instalada. Execute: pip install ezdxf")
             else:
+                novo_item_adicionado = False
                 for dxf_file in uploaded_files:
                     if dxf_file.name not in st.session_state.processed_files:
                         # process DXF geometry with default speeds/peck
@@ -161,8 +162,10 @@ with tab_dxf:
                             })
                             st.session_state.processed_files.append(dxf_file.name)
                             st.success(f"✅ Arquivo '{dxf_file.name}' importado com sucesso!")
-                # Trigger rerun to show the newly added files
-                st.rerun()
+                            novo_item_adicionado = True
+                # Trigger rerun ONLY if a new file was actually processed
+                if novo_item_adicionado:
+                    st.rerun()
                 
     with actions_col:
         st.markdown("<br>", unsafe_allow_html=True)

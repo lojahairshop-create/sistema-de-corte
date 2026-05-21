@@ -291,3 +291,8 @@ def calcular_item_completo(item_data, config):
 def calcular_item_completo_v2(item_data, config):
     """Alias para compatibilidade com os testes unitários."""
     return calcular_item_completo(item_data, config)
+
+
+def calcular_fator_impostos(icms, pis, cofins, csll, irpj):
+    """Calcula o fator divisor de impostos em cascata."""
+    return 1.0 - (icms + pis + cofins + csll + irpj)

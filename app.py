@@ -671,16 +671,31 @@ RESUMO DOS TOTAIS:
             if best:
                 st.success(f"Nesting calculado! Aproveitamento: **{aprov:.1f}%** | Layout: **{best['desc']}** | Peças acomodadas: **{best['qtd']} / {item['qtd']}**")
                 
-                # Plot layout
-                fig, ax = plt.subplots(figsize=(10, 6))
-                ax.add_patch(patches.Rectangle((0, 0), n_w, n_c, edgecolor='black', facecolor='#cbd5e1', label='Chapa'))
+                # Plot layout in SigmaNEST CAD style
+                fig, ax = plt.subplots(figsize=(10, 6), facecolor='#0f172a')
+                ax.set_facecolor('#0f172a')
                 
+                # Plate outline (Deep Slate with White boundary)
+                ax.add_patch(patches.Rectangle((0, 0), n_w, n_c, edgecolor='#f8fafc', facecolor='#1e293b', linewidth=2, label='Chapa'))
+                
+                # Nested parts in CAD green
                 for r in best['rects']:
-                    ax.add_patch(patches.Rectangle((r['x'], r['y']), r['w'], r['h'], edgecolor='#1e3a8a', facecolor='#bfdbfe', alpha=0.8))
+                    ax.add_patch(patches.Rectangle(
+                        (r['x'], r['y']), r['w'], r['h'], 
+                        edgecolor='#22c55e', facecolor='#22c55e', alpha=0.45, linewidth=1.5
+                    ))
                     
-                ax.set_xlim(-50, n_w + 50)
-                ax.set_ylim(-50, n_c + 50)
+                ax.set_xlim(-100, n_w + 100)
+                ax.set_ylim(-100, n_c + 100)
                 ax.set_aspect('equal')
+                
+                # Style ticks and labels to look clean
+                ax.tick_params(colors='#94a3b8')
+                ax.xaxis.label.set_color('#94a3b8')
+                ax.yaxis.label.set_color('#94a3b8')
+                for spine in ax.spines.values():
+                    spine.set_color('#334155')
+                    
                 st.pyplot(fig)
             else:
                 st.error("Não foi possível realizar o nesting (peça maior que a chapa ou quantidade zero).")

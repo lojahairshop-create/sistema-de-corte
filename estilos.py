@@ -7,6 +7,40 @@ html, body, [class*="css"], .stApp {
     font-family: 'Space Grotesk', sans-serif !important;
 }
 
+/* Force black text on light backgrounds */
+p, label, li, h2, h3, h4, h5, h6, [data-testid="stWidgetLabel"] p, .stWidgetLabel, .stMarkdown p {
+    color: #000000 !important;
+}
+
+/* White text on dark elements */
+div.stButton > button:first-child,
+div.stFormSubmitButton > button:first-child,
+div.stButton > button:first-child *,
+.stTabs [aria-selected="true"],
+.stTabs [aria-selected="true"] * {
+    color: #ffffff !important;
+}
+
+/* Inactive tabs text */
+.stTabs [data-baseweb="tab"] {
+    color: #000000 !important;
+}
+
+/* Dropdown popover menu styling (st.selectbox options) */
+div[role="listbox"],
+div[role="listbox"] ul,
+div[role="listbox"] li,
+div[data-baseweb="popover"],
+div[data-baseweb="popover"] * {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+div[role="listbox"] li:hover,
+div[role="listbox"] li[aria-selected="true"] {
+    background-color: #FFD93D !important;
+    color: #000000 !important;
+}
+
 /* Background - Creme with discrete grid typical of paper/notebook */
 .stApp {
     background-color: #FFFDF5 !important;

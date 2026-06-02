@@ -186,104 +186,103 @@ def gerar_pdf_com_ajuste():
     else:
         st.info("Nenhum ajuste será aplicado. Preço original mantido.")
 
-    if st.button("⬇️ Gerar e Baixar PDF", use_container_width=True, type="primary", key="btn_confirmar_pdf"):
-        ss = st.session_state
+    # --- Gerar o PDF diretamente e oferecer download ---
+    ss = st.session_state
 
-        # Reconstruct config from session_state
-        _tx_icms = float(ss.get("tx_icms", 18.0)) / 100
-        _tx_ipi = float(ss.get("tx_ipi", 5.0)) / 100
-        _tx_pis = float(ss.get("tx_pis", 0.65)) / 100
-        _tx_cofins = float(ss.get("tx_cofins", 3.0)) / 100
-        _tx_csll = float(ss.get("tx_csll", 1.08)) / 100
-        _tx_irpj = float(ss.get("tx_irpj", 1.2)) / 100
+    _tx_icms = float(ss.get("tx_icms", 18.0)) / 100
+    _tx_ipi = float(ss.get("tx_ipi", 5.0)) / 100
+    _tx_pis = float(ss.get("tx_pis", 0.65)) / 100
+    _tx_cofins = float(ss.get("tx_cofins", 3.0)) / 100
+    _tx_csll = float(ss.get("tx_csll", 1.08)) / 100
+    _tx_irpj = float(ss.get("tx_irpj", 1.2)) / 100
 
-        _taxas = {'icms': _tx_icms, 'ipi': _tx_ipi, 'pis': _tx_pis, 'cofins': _tx_cofins, 'csll': _tx_csll, 'irpj': _tx_irpj}
-        _tarifas = {
-            'corte_laser': float(ss.get("tar_corte", 450.0)),
-            'setup': float(ss.get("tar_setup", 60.0)),
-            'dobra': float(ss.get("tar_dobra", 100.0)),
-            'caldeiraria': float(ss.get("tar_cald", 100.0)),
-            'solda': float(ss.get("tar_solda", 100.0)),
-            'guilhotina': float(ss.get("tar_guil", 68.0)),
-            'usinagem_int': float(ss.get("tar_usin", 80.0)),
-            'montagem': float(ss.get("tar_mont", 80.0)),
-        }
-        _precos = {
-            'Aço Carbono': float(ss.get("p_aco", 8.50)),
-            'Aço Inox': float(ss.get("p_inox", 32.0)),
-            'Alumínio': float(ss.get("p_alum", 25.0)),
-        }
+    _taxas = {'icms': _tx_icms, 'ipi': _tx_ipi, 'pis': _tx_pis, 'cofins': _tx_cofins, 'csll': _tx_csll, 'irpj': _tx_irpj}
+    _tarifas = {
+        'corte_laser': float(ss.get("tar_corte", 450.0)),
+        'setup': float(ss.get("tar_setup", 60.0)),
+        'dobra': float(ss.get("tar_dobra", 100.0)),
+        'caldeiraria': float(ss.get("tar_cald", 100.0)),
+        'solda': float(ss.get("tar_solda", 100.0)),
+        'guilhotina': float(ss.get("tar_guil", 68.0)),
+        'usinagem_int': float(ss.get("tar_usin", 80.0)),
+        'montagem': float(ss.get("tar_mont", 80.0)),
+    }
+    _precos = {
+        'Aço Carbono': float(ss.get("p_aco", 8.50)),
+        'Aço Inox': float(ss.get("p_inox", 32.0)),
+        'Alumínio': float(ss.get("p_alum", 25.0)),
+    }
 
-        cfg_pdf = {
-            'gap': 5.0,
-            'margem_lucro': float(ss.get("margem", 30.0)) / 100,
-            'taxa_comissao': float(ss.get("comissao", 3.0)) / 100,
-            'taxas_impostos': _taxas,
-            'tarifas': _tarifas,
-            'precos_material': _precos,
-            'ajuste_comercial': ajuste_valor
-        }
+    cfg_pdf = {
+        'gap': 5.0,
+        'margem_lucro': float(ss.get("margem", 30.0)) / 100,
+        'taxa_comissao': float(ss.get("comissao", 3.0)) / 100,
+        'taxas_impostos': _taxas,
+        'tarifas': _tarifas,
+        'precos_material': _precos,
+        'ajuste_comercial': ajuste_valor
+    }
 
-        # Recalculate items with adjustment
-        itens_pdf = []
-        for item in ss.itens:
-            item_copy = dict(item)
-            item_copy['calc'] = calcular_item_completo(item_copy, cfg_pdf)
-            itens_pdf.append(item_copy)
+    # Recalculate items with adjustment
+    itens_pdf = []
+    for item in ss.itens:
+        item_copy = dict(item)
+        item_copy['calc'] = calcular_item_completo(item_copy, cfg_pdf)
+        itens_pdf.append(item_copy)
 
-        # Logo
-        _pdf_logo = None
-        if os.path.exists("logo_customizado.bin"):
-            try:
-                with open("logo_customizado.bin", "rb") as f:
-                    _pdf_logo = f.read()
-            except:
-                pass
-
-        # Dates
-        _data_criacao = ss.get("_pdf_data_criacao", "")
-        _data_vencimento = ss.get("_pdf_data_vencimento", "")
-
-        _client = {
-            'nome': ss.get("nome_cli", ""),
-            'endereco': ss.get("cliente_end", ""),
-            'telefone': ss.get("cliente_tel", ""),
-            'num_orcamento': ss.get("nome_proj", "Orçamento 001"),
-            'data_criacao': _data_criacao,
-            'data_vencimento': _data_vencimento,
-        }
-        _emissor = {
-            'nome': ss.get("em_nome", "2R CORTE LASER"),
-            'responsavel': ss.get("em_resp", ""),
-            'endereco': ss.get("em_end", ""),
-            'telefone': ss.get("em_tel", ""),
-            'celular': ss.get("em_cel", ""),
-            'email': ss.get("em_email", ""),
-        }
-        _prazos = {
-            'prazo_entrega': ss.get("cond_prazo", ""),
-            'forma_pagamento': ss.get("cond_pgto", ""),
-            'pedido_minimo': float(ss.get("cond_minimo", 500.0)),
-            'frete': ss.get("cond_frete", "FOB"),
-            'impostos_descricao': ss.get("cond_impostos", ""),
-            'comentarios': ss.get("cond_coment", ""),
-            'condicoes_texto': [ss.get(f"c{i}", "") for i in range(1, 8)]
-        }
-
+    # Logo
+    _pdf_logo = None
+    if os.path.exists("logo_customizado.bin"):
         try:
-            pdf_data = gerar_orcamento_pdf(itens_pdf, cfg_pdf, _client, _emissor, _prazos, _pdf_logo)
-            st.download_button(
-                "⬇️ Clique para Baixar o PDF",
-                pdf_data,
-                f"Orcamento_{ss.get('nome_proj', 'Orcamento')}_{datetime.now().strftime('%Y%m%d')}.pdf",
-                mime="application/pdf",
-                use_container_width=True
-            )
-            st.success("✅ PDF gerado com sucesso!")
-        except Exception as e:
-            st.error(f"Erro ao gerar PDF: {e}")
-            import traceback
-            traceback.print_exc()
+            with open("logo_customizado.bin", "rb") as f:
+                _pdf_logo = f.read()
+        except:
+            pass
+
+    # Dates
+    _data_criacao = ss.get("_pdf_data_criacao", "")
+    _data_vencimento = ss.get("_pdf_data_vencimento", "")
+
+    _client = {
+        'nome': ss.get("nome_cli", ""),
+        'endereco': ss.get("cliente_end", ""),
+        'telefone': ss.get("cliente_tel", ""),
+        'num_orcamento': ss.get("nome_proj", "Orçamento 001"),
+        'data_criacao': _data_criacao,
+        'data_vencimento': _data_vencimento,
+    }
+    _emissor = {
+        'nome': ss.get("em_nome", "2R CORTE LASER"),
+        'responsavel': ss.get("em_resp", ""),
+        'endereco': ss.get("em_end", ""),
+        'telefone': ss.get("em_tel", ""),
+        'celular': ss.get("em_cel", ""),
+        'email': ss.get("em_email", ""),
+    }
+    _prazos = {
+        'prazo_entrega': ss.get("cond_prazo", ""),
+        'forma_pagamento': ss.get("cond_pgto", ""),
+        'pedido_minimo': float(ss.get("cond_minimo", 500.0)),
+        'frete': ss.get("cond_frete", "FOB"),
+        'impostos_descricao': ss.get("cond_impostos", ""),
+        'comentarios': ss.get("cond_coment", ""),
+        'condicoes_texto': [ss.get(f"c{i}", "") for i in range(1, 8)]
+    }
+
+    try:
+        pdf_data = gerar_orcamento_pdf(itens_pdf, cfg_pdf, _client, _emissor, _prazos, _pdf_logo)
+        st.download_button(
+            "⬇️ BAIXAR PDF DO ORÇAMENTO",
+            pdf_data,
+            f"Orcamento_{ss.get('nome_proj', 'Orcamento')}_{datetime.now().strftime('%Y%m%d')}.pdf",
+            mime="application/pdf",
+            use_container_width=True,
+            type="primary"
+        )
+    except Exception as e:
+        st.error(f"Erro ao gerar PDF: {e}")
+        import traceback
+        traceback.print_exc()
 
 # === DADOS DO PROJETO ===
 st.markdown('<div class="section-title">📋 Dados do Orçamento</div>', unsafe_allow_html=True)

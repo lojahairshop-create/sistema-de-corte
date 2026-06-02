@@ -66,7 +66,6 @@ with st.sidebar:
     with st.expander("💰 Margem e Comissão", expanded=True):
         margem_lucro = st.number_input("Margem de Lucro (%)", value=float(cfg.get("margem", 30.0)), step=5.0, format="%.1f", key="margem", on_change=save_s, args=("margem",)) / 100
         taxa_comissao = st.number_input("Comissão (%)", value=float(cfg.get("comissao", 3.0)), step=0.5, format="%.1f", key="comissao", on_change=save_s, args=("comissao",)) / 100
-        ajuste_comercial = st.number_input("Acréscimo (+) / Desconto (-) (%)", value=float(cfg.get("ajuste_comercial", 0.0)), step=1.0, format="%.1f", key="ajuste_comercial", on_change=save_s, args=("ajuste_comercial",))
         
     with st.expander("🛠️ Tarifas Hora-Máquina (R$/h)", expanded=False):
         tar_corte = st.number_input("Corte Laser", value=float(cfg.get("tar_corte", 450.0)), step=10.0, key="tar_corte", on_change=save_s, args=("tar_corte",))
@@ -154,8 +153,137 @@ config_global = {
     'taxas_impostos': taxas_impostos,
     'tarifas': tarifas,
     'precos_material': precos_material,
-    'ajuste_comercial': ajuste_comercial
+    'ajuste_comercial': 0.0
 }
+
+# === DIALOG PARA AJUSTE COMERCIAL NO PDF ===
+@st.dialog("📄 Ajuste Comercial do Orçamento")
+def gerar_pdf_com_ajuste():
+    from calculos import calcular_item_completo
+    from gerador_pdf import gerar_orcamento_pdf
+
+    st.markdown("**Deseja aplicar algum ajuste comercial neste orçamento?**")
+
+    opcao = st.radio(
+        "Tipo de Ajuste:",
+        ["💲 Manter Preço (sem ajuste)", "📈 Acréscimo", "📉 Desconto"],
+        index=0,
+        key="dlg_tipo_ajuste",
+        horizontal=True
+    )
+
+    ajuste_valor = 0.0
+    if "Acréscimo" in opcao:
+        ajuste_valor = st.number_input("Acréscimo (%)", min_value=0.1, value=5.0, step=1.0, format="%.1f", key="dlg_pct_acresc")
+    elif "Desconto" in opcao:
+        ajuste_valor = -st.number_input("Desconto (%)", min_value=0.1, value=5.0, step=1.0, format="%.1f", key="dlg_pct_desc")
+
+    st.divider()
+
+    if ajuste_valor != 0.0:
+        tipo_txt = "Acréscimo" if ajuste_valor > 0 else "Desconto"
+        st.info(f"**{tipo_txt} de {abs(ajuste_valor):.1f}%** será aplicado ao preço de venda.")
+    else:
+        st.info("Nenhum ajuste será aplicado. Preço original mantido.")
+
+    if st.button("⬇️ Gerar e Baixar PDF", use_container_width=True, type="primary", key="btn_confirmar_pdf"):
+        ss = st.session_state
+
+        # Reconstruct config from session_state
+        _tx_icms = float(ss.get("tx_icms", 18.0)) / 100
+        _tx_ipi = float(ss.get("tx_ipi", 5.0)) / 100
+        _tx_pis = float(ss.get("tx_pis", 0.65)) / 100
+        _tx_cofins = float(ss.get("tx_cofins", 3.0)) / 100
+        _tx_csll = float(ss.get("tx_csll", 1.08)) / 100
+        _tx_irpj = float(ss.get("tx_irpj", 1.2)) / 100
+
+        _taxas = {'icms': _tx_icms, 'ipi': _tx_ipi, 'pis': _tx_pis, 'cofins': _tx_cofins, 'csll': _tx_csll, 'irpj': _tx_irpj}
+        _tarifas = {
+            'corte_laser': float(ss.get("tar_corte", 450.0)),
+            'setup': float(ss.get("tar_setup", 60.0)),
+            'dobra': float(ss.get("tar_dobra", 100.0)),
+            'caldeiraria': float(ss.get("tar_cald", 100.0)),
+            'solda': float(ss.get("tar_solda", 100.0)),
+            'guilhotina': float(ss.get("tar_guil", 68.0)),
+            'usinagem_int': float(ss.get("tar_usin", 80.0)),
+            'montagem': float(ss.get("tar_mont", 80.0)),
+        }
+        _precos = {
+            'Aço Carbono': float(ss.get("p_aco", 8.50)),
+            'Aço Inox': float(ss.get("p_inox", 32.0)),
+            'Alumínio': float(ss.get("p_alum", 25.0)),
+        }
+
+        cfg_pdf = {
+            'gap': 5.0,
+            'margem_lucro': float(ss.get("margem", 30.0)) / 100,
+            'taxa_comissao': float(ss.get("comissao", 3.0)) / 100,
+            'taxas_impostos': _taxas,
+            'tarifas': _tarifas,
+            'precos_material': _precos,
+            'ajuste_comercial': ajuste_valor
+        }
+
+        # Recalculate items with adjustment
+        itens_pdf = []
+        for item in ss.itens:
+            item_copy = dict(item)
+            item_copy['calc'] = calcular_item_completo(item_copy, cfg_pdf)
+            itens_pdf.append(item_copy)
+
+        # Logo
+        _pdf_logo = None
+        if os.path.exists("logo_customizado.bin"):
+            try:
+                with open("logo_customizado.bin", "rb") as f:
+                    _pdf_logo = f.read()
+            except:
+                pass
+
+        # Dates
+        _data_criacao = ss.get("_pdf_data_criacao", "")
+        _data_vencimento = ss.get("_pdf_data_vencimento", "")
+
+        _client = {
+            'nome': ss.get("nome_cli", ""),
+            'endereco': ss.get("cliente_end", ""),
+            'telefone': ss.get("cliente_tel", ""),
+            'num_orcamento': ss.get("nome_proj", "Orçamento 001"),
+            'data_criacao': _data_criacao,
+            'data_vencimento': _data_vencimento,
+        }
+        _emissor = {
+            'nome': ss.get("em_nome", "2R CORTE LASER"),
+            'responsavel': ss.get("em_resp", ""),
+            'endereco': ss.get("em_end", ""),
+            'telefone': ss.get("em_tel", ""),
+            'celular': ss.get("em_cel", ""),
+            'email': ss.get("em_email", ""),
+        }
+        _prazos = {
+            'prazo_entrega': ss.get("cond_prazo", ""),
+            'forma_pagamento': ss.get("cond_pgto", ""),
+            'pedido_minimo': float(ss.get("cond_minimo", 500.0)),
+            'frete': ss.get("cond_frete", "FOB"),
+            'impostos_descricao': ss.get("cond_impostos", ""),
+            'comentarios': ss.get("cond_coment", ""),
+            'condicoes_texto': [ss.get(f"c{i}", "") for i in range(1, 8)]
+        }
+
+        try:
+            pdf_data = gerar_orcamento_pdf(itens_pdf, cfg_pdf, _client, _emissor, _prazos, _pdf_logo)
+            st.download_button(
+                "⬇️ Clique para Baixar o PDF",
+                pdf_data,
+                f"Orcamento_{ss.get('nome_proj', 'Orcamento')}_{datetime.now().strftime('%Y%m%d')}.pdf",
+                mime="application/pdf",
+                use_container_width=True
+            )
+            st.success("✅ PDF gerado com sucesso!")
+        except Exception as e:
+            st.error(f"Erro ao gerar PDF: {e}")
+            import traceback
+            traceback.print_exc()
 
 # === DADOS DO PROJETO ===
 st.markdown('<div class="section-title">📋 Dados do Orçamento</div>', unsafe_allow_html=True)
@@ -182,6 +310,8 @@ with pc8:
 data_vencimento_input = data_criacao_input + timedelta(days=validade_dias)
 data_criacao_str = data_criacao_input.strftime('%d/%m/%Y')
 data_vencimento_str = data_vencimento_input.strftime('%d/%m/%Y')
+st.session_state._pdf_data_criacao = data_criacao_str
+st.session_state._pdf_data_vencimento = data_vencimento_str
 
 st.markdown('<hr class="custom-divider">', unsafe_allow_html=True)
 
@@ -603,48 +733,8 @@ RESUMO DOS TOTAIS:
             except Exception as e:
                 st.warning(f"Erro ao gerar Excel: {e}")
         with ex3:
-            try:
-                from gerador_pdf import gerar_orcamento_pdf
-                pdf_logo_bytes = None
-                if os.path.exists("logo_customizado.bin"):
-                    try:
-                        with open("logo_customizado.bin", "rb") as f:
-                            pdf_logo_bytes = f.read()
-                    except:
-                        pass
-                if logo_uploaded is not None:
-                    pdf_logo_bytes = logo_uploaded.getvalue()
-                client_dict = {
-                    'nome': nome_cliente,
-                    'endereco': cliente_endereco,
-                    'telefone': cliente_telefone,
-                    'num_orcamento': nome_projeto,
-                    'data_criacao': data_criacao_str,
-                    'data_vencimento': data_vencimento_str
-                }
-                emissor_dict = {
-                    'nome': emissor_nome,
-                    'responsavel': emissor_resp,
-                    'endereco': emissor_end,
-                    'telefone': emissor_tel,
-                    'celular': emissor_cel,
-                    'email': emissor_email
-                }
-                prazos_dict = {
-                    'prazo_entrega': cond_prazo,
-                    'forma_pagamento': cond_pgto,
-                    'pedido_minimo': cond_minimo,
-                    'frete': cond_frete,
-                    'impostos_descricao': cond_impostos,
-                    'comentarios': cond_comentarios,
-                    'condicoes_texto': [c1, c2, c3, c4, c5, c6, c7]
-                }
-                pdf_data = gerar_orcamento_pdf(st.session_state.itens, config_global, client_dict, emissor_dict, prazos_dict, pdf_logo_bytes)
-                st.download_button("📄 Baixar PDF do Orçamento", pdf_data, f"Orcamento_{nome_projeto}_{datetime.now().strftime('%Y%m%d')}.pdf", mime="application/pdf", use_container_width=True)
-            except Exception as e:
-                st.warning(f"Erro ao gerar PDF: {e}")
-                import traceback
-                traceback.print_exc()
+            if st.button("📄 Gerar PDF do Orçamento", use_container_width=True, key="btn_open_pdf_dialog"):
+                gerar_pdf_com_ajuste()
 
     # --- TAB 3: NESTING SIMULATION ---
     with tab_nesting:

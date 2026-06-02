@@ -3,127 +3,14 @@ CSS = """
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&display=swap');
 
 /* ============================================================
-   GLOBAL THEME OVERRIDE — Force light mode everywhere
+   FONT
    ============================================================ */
-
-/* Root and App level — Force light background and black text */
-html, body, [class*="css"], .stApp,
-[data-testid="stAppViewContainer"],
-[data-testid="stAppViewBlockContainer"],
-[data-testid="stVerticalBlock"],
-[data-testid="stHorizontalBlock"],
-[data-testid="stMainBlockContainer"],
-main, header {
+html, body, [class*="css"], .stApp {
     font-family: 'Space Grotesk', sans-serif !important;
-    color: #000000 !important;
-}
-
-/* Force ALL text elements to black */
-p, span, label, li, td, th, caption, summary,
-h1, h2, h3, h4, h5, h6,
-div, a,
-[data-testid="stWidgetLabel"] p,
-[data-testid="stWidgetLabel"] label,
-[data-testid="stWidgetLabel"],
-.stWidgetLabel,
-.stMarkdown p,
-.stMarkdown span,
-.stMarkdown li,
-.stMarkdown div,
-[data-testid="stMarkdownContainer"] p,
-[data-testid="stMarkdownContainer"] span,
-[data-testid="stMarkdownContainer"] li,
-[data-testid="stText"],
-[data-testid="stCaptionContainer"] {
-    color: #000000 !important;
 }
 
 /* ============================================================
-   DIALOG / MODAL — Force white background with black text
-   ============================================================ */
-div[data-testid="stModal"],
-div[data-testid="stModal"] > div,
-div[data-testid="stDialog"],
-div[data-testid="stDialog"] > div,
-div[role="dialog"],
-div[role="dialog"] > div,
-div[role="dialog"] [data-testid="stVerticalBlock"],
-div[role="dialog"] [data-testid="stMarkdownContainer"],
-div[role="dialog"] [data-testid="stWidgetLabel"],
-[data-testid="stModal"] [data-testid="stVerticalBlockBorderWrapper"],
-[data-testid="stDialog"] [data-testid="stVerticalBlockBorderWrapper"] {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-}
-
-div[role="dialog"] p,
-div[role="dialog"] span,
-div[role="dialog"] label,
-div[role="dialog"] h1,
-div[role="dialog"] h2,
-div[role="dialog"] h3,
-div[role="dialog"] div,
-div[role="dialog"] li,
-div[role="dialog"] [data-testid="stWidgetLabel"] p,
-div[role="dialog"] .stMarkdown p {
-    color: #000000 !important;
-}
-
-/* Dialog inputs */
-div[role="dialog"] .stTextInput>div>div>input,
-div[role="dialog"] .stNumberInput>div>div>input,
-div[role="dialog"] .stSelectbox>div>div>div,
-div[role="dialog"] div[data-baseweb="select"],
-div[role="dialog"] .stTextArea textarea {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    border: 4px solid #000000 !important;
-    border-radius: 0px !important;
-}
-
-/* Dialog radio buttons */
-div[role="dialog"] [role="radiogroup"] label,
-div[role="dialog"] [role="radiogroup"] label span,
-div[role="dialog"] [role="radiogroup"] label p,
-div[role="dialog"] [data-testid="stRadio"] label {
-    color: #000000 !important;
-}
-
-/* Dialog close button (X) */
-div[role="dialog"] button[aria-label="Close"],
-div[role="dialog"] button[aria-label="Close"] svg {
-    color: #000000 !important;
-}
-
-/* Dialog title */
-div[role="dialog"] [data-testid="stDialogTitle"],
-div[role="dialog"] h2 {
-    color: #000000 !important;
-}
-
-/* ============================================================
-   ALERTS / INFO / WARNING / ERROR / SUCCESS — Readable text
-   ============================================================ */
-div[data-testid="stAlert"],
-div[role="alert"],
-.stAlert,
-[data-testid="stNotification"] {
-    color: #000000 !important;
-}
-
-div[data-testid="stAlert"] p,
-div[data-testid="stAlert"] span,
-div[data-testid="stAlert"] div,
-div[role="alert"] p,
-div[role="alert"] span,
-div[role="alert"] div,
-.stAlert p,
-.stAlert span {
-    color: #000000 !important;
-}
-
-/* ============================================================
-   BACKGROUND — Creme with subtle grid pattern
+   BACKGROUND — Creme with subtle grid
    ============================================================ */
 .stApp {
     background-color: #FFFDF5 !important;
@@ -132,7 +19,6 @@ div[role="alert"] div,
                       linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
 }
 
-/* Hide Streamlit native menus */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 
@@ -176,9 +62,6 @@ section[data-testid="stSidebar"] {
     background-color: #C4B5FD !important;
     border-right: 4px solid #000000 !important;
 }
-section[data-testid="stSidebar"] * {
-    color: #000000 !important;
-}
 section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 {
     color: #000000 !important;
     font-weight: 900 !important;
@@ -191,14 +74,16 @@ section[data-testid="stSidebar"] label {
     text-transform: uppercase;
     font-size: 0.9rem !important;
 }
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] div {
+    color: #000000 !important;
+}
 section[data-testid="stSidebar"] div[data-testid="stExpander"] {
     background-color: #ffffff !important;
     border: 4px solid #000000 !important;
     border-radius: 0px !important;
     box-shadow: 4px 4px 0px 0px #000000 !important;
-}
-section[data-testid="stSidebar"] div[data-testid="stExpander"] * {
-    color: #000000 !important;
 }
 section[data-testid="stSidebar"] .stTextInput>div>div>input,
 section[data-testid="stSidebar"] .stNumberInput>div>div>input,
@@ -238,16 +123,25 @@ div[data-baseweb="select"]:focus,
     color: #000000 !important;
 }
 
+/* Text color for all labels and text */
+p, label, li, h2, h3, h4, h5, h6,
+[data-testid="stWidgetLabel"] p,
+.stWidgetLabel,
+.stMarkdown p {
+    color: #000000 !important;
+}
+
 /* ============================================================
-   DROPDOWN / POPOVER menus
+   DROPDOWN / POPOVER
    ============================================================ */
 div[role="listbox"],
 div[role="listbox"] ul,
 div[role="listbox"] li,
 div[data-baseweb="popover"],
-div[data-baseweb="popover"] *,
+div[data-baseweb="popover"] div,
+div[data-baseweb="popover"] li,
 div[data-baseweb="menu"],
-div[data-baseweb="menu"] * {
+div[data-baseweb="menu"] li {
     background-color: #ffffff !important;
     color: #000000 !important;
 }
@@ -267,9 +161,6 @@ div[data-testid="stExpander"] {
     box-shadow: 6px 6px 0px 0px #000000 !important;
     margin-bottom: 1rem !important;
 }
-div[data-testid="stExpander"] * {
-    color: #000000 !important;
-}
 
 /* ============================================================
    FORMS
@@ -285,10 +176,9 @@ div[data-testid="stForm"] {
 /* ============================================================
    BUTTONS — Mechanical Red
    ============================================================ */
-
-/* White text ONLY on buttons */
 div.stButton > button:first-child,
-div.stFormSubmitButton > button:first-child {
+div.stFormSubmitButton > button:first-child,
+div.stDownloadButton > button:first-child {
     background: #FF6B6B !important;
     color: #ffffff !important;
     border: 4px solid #000000 !important;
@@ -301,49 +191,36 @@ div.stFormSubmitButton > button:first-child {
     transition: transform 0.05s ease-out, box-shadow 0.05s ease-out !important;
     width: 100%;
 }
-div.stButton > button:first-child *,
-div.stFormSubmitButton > button:first-child *,
 div.stButton > button:first-child p,
-div.stFormSubmitButton > button:first-child p,
 div.stButton > button:first-child span,
-div.stFormSubmitButton > button:first-child span {
+div.stFormSubmitButton > button:first-child p,
+div.stFormSubmitButton > button:first-child span,
+div.stDownloadButton > button:first-child p,
+div.stDownloadButton > button:first-child span {
     color: #ffffff !important;
 }
 div.stButton > button:first-child:hover,
-div.stFormSubmitButton > button:first-child:hover {
+div.stFormSubmitButton > button:first-child:hover,
+div.stDownloadButton > button:first-child:hover {
     background: #ff5252 !important;
     transform: translate(-2px, -2px) !important;
     box-shadow: 6px 6px 0px 0px #000000 !important;
 }
 div.stButton > button:first-child:active,
-div.stFormSubmitButton > button:first-child:active {
+div.stFormSubmitButton > button:first-child:active,
+div.stDownloadButton > button:first-child:active {
     transform: translate(4px, 4px) !important;
     box-shadow: 0px 0px 0px 0px #000000 !important;
 }
 div.stButton > button:first-child:disabled,
-div.stFormSubmitButton > button:first-child:disabled {
+div.stFormSubmitButton > button:first-child:disabled,
+div.stDownloadButton > button:first-child:disabled {
     background: #e2e8f0 !important;
     color: #94a3b8 !important;
     border-color: #94a3b8 !important;
     box-shadow: none !important;
     cursor: not-allowed !important;
     transform: none !important;
-}
-
-/* Download buttons — same style */
-div.stDownloadButton > button:first-child {
-    background: #FF6B6B !important;
-    color: #ffffff !important;
-    border: 4px solid #000000 !important;
-    border-radius: 0px !important;
-    font-weight: 900 !important;
-    text-transform: uppercase !important;
-    box-shadow: 4px 4px 0px 0px #000000 !important;
-}
-div.stDownloadButton > button:first-child *,
-div.stDownloadButton > button:first-child p,
-div.stDownloadButton > button:first-child span {
-    color: #ffffff !important;
 }
 
 /* ============================================================
@@ -362,7 +239,7 @@ section[data-testid="stFileUploader"]:hover {
 }
 
 /* ============================================================
-   RESULT CARDS — Thick Outlines & Offset Shadows
+   RESULT CARDS
    ============================================================ */
 .result-card {
     background: #ffffff !important;
@@ -392,16 +269,9 @@ section[data-testid="stFileUploader"]:hover {
     font-weight: 900 !important;
     color: #000000 !important;
 }
-
-/* Card color variations */
 .result-card-green { background: #86EFAC !important; }
-.result-card-green .value, .result-card-green .label { color: #000000 !important; }
-
 .result-card-orange { background: #FFD93D !important; }
-.result-card-orange .value, .result-card-orange .label { color: #000000 !important; }
-
 .result-card-blue { background: #93C5FD !important; }
-.result-card-blue .value, .result-card-blue .label { color: #000000 !important; }
 
 /* ============================================================
    SECTION TITLES & DIVIDERS
@@ -444,7 +314,7 @@ section[data-testid="stFileUploader"]:hover {
 }
 
 /* ============================================================
-   TABS — Neobrutalist Folder Tabs
+   TABS
    ============================================================ */
 .stTabs [data-baseweb="tab-list"] {
     gap: 10px;
@@ -466,9 +336,6 @@ section[data-testid="stFileUploader"]:hover {
     margin-bottom: -4px !important;
     transition: transform 0.1s ease-out !important;
 }
-.stTabs [data-baseweb="tab"] * {
-    color: #000000 !important;
-}
 .stTabs [data-baseweb="tab"]:hover {
     background-color: #FFD93D !important;
 }
@@ -478,70 +345,39 @@ section[data-testid="stFileUploader"]:hover {
     transform: translateY(-4px) !important;
     box-shadow: 4px 4px 0px 0px #000000 !important;
 }
-.stTabs [aria-selected="true"] *,
 .stTabs [aria-selected="true"] p,
 .stTabs [aria-selected="true"] span {
     color: #ffffff !important;
 }
 
 /* ============================================================
-   DATA EDITOR / DATAFRAME — Force white bg and black text
+   DIALOG / MODAL — White bg, black text
    ============================================================ */
-[data-testid="stDataFrame"],
-[data-testid="stDataEditor"],
-[data-testid="stDataFrame"] *,
-[data-testid="stDataEditor"] * {
-    color: #000000 !important;
-}
-
-/* ============================================================
-   MULTISELECT / TAGS
-   ============================================================ */
-div[data-baseweb="tag"] {
-    background-color: #FFD93D !important;
-    color: #000000 !important;
-}
-div[data-baseweb="tag"] * {
-    color: #000000 !important;
-}
-
-/* ============================================================
-   TOOLTIPS
-   ============================================================ */
-div[data-baseweb="tooltip"],
-div[data-baseweb="tooltip"] * {
-    background-color: #000000 !important;
-    color: #ffffff !important;
-}
-
-/* ============================================================
-   METRIC / NUMBER INPUT steppers
-   ============================================================ */
-.stNumberInput button {
-    color: #000000 !important;
+div[role="dialog"] {
     background-color: #ffffff !important;
-    border: 2px solid #000000 !important;
-    border-radius: 0px !important;
 }
-
-/* ============================================================
-   CHECKBOX / RADIO — Force black text
-   ============================================================ */
-[data-testid="stCheckbox"] label,
-[data-testid="stCheckbox"] label *,
-[data-testid="stRadio"] label,
-[data-testid="stRadio"] label *,
-[role="radiogroup"] label,
-[role="radiogroup"] label * {
+div[role="dialog"] > div {
+    background-color: #ffffff !important;
+}
+div[role="dialog"] p,
+div[role="dialog"] span,
+div[role="dialog"] label,
+div[role="dialog"] h1, div[role="dialog"] h2, div[role="dialog"] h3,
+div[role="dialog"] div,
+div[role="dialog"] li {
     color: #000000 !important;
 }
 
 /* ============================================================
-   SCROLLBAR (optional) — Subtle dark track
+   RADIO / CHECKBOX
    ============================================================ */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #FFFDF5; }
-::-webkit-scrollbar-thumb { background: #000000; border-radius: 0px; }
+[data-testid="stRadio"] label,
+[data-testid="stRadio"] label span,
+[data-testid="stRadio"] label p,
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] label span {
+    color: #000000 !important;
+}
 
 </style>
 """

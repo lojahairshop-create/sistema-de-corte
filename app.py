@@ -276,8 +276,7 @@ def gerar_pdf_com_ajuste():
             pdf_data,
             f"Orcamento_{ss.get('nome_proj', 'Orcamento')}_{datetime.now().strftime('%Y%m%d')}.pdf",
             mime="application/pdf",
-            use_container_width=True,
-            type="primary"
+            use_container_width=True
         )
     except Exception as e:
         st.error(f"Erro ao gerar PDF: {e}")

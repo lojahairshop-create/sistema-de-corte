@@ -2,46 +2,129 @@ CSS = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&display=swap');
 
-/* Apply font to all elements */
-html, body, [class*="css"], .stApp {
+/* ============================================================
+   GLOBAL THEME OVERRIDE — Force light mode everywhere
+   ============================================================ */
+
+/* Root and App level — Force light background and black text */
+html, body, [class*="css"], .stApp,
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewBlockContainer"],
+[data-testid="stVerticalBlock"],
+[data-testid="stHorizontalBlock"],
+[data-testid="stMainBlockContainer"],
+main, header {
     font-family: 'Space Grotesk', sans-serif !important;
-}
-
-/* Force black text on light backgrounds */
-p, label, li, h2, h3, h4, h5, h6, [data-testid="stWidgetLabel"] p, .stWidgetLabel, .stMarkdown p {
     color: #000000 !important;
 }
 
-/* White text on dark elements */
-div.stButton > button:first-child,
-div.stFormSubmitButton > button:first-child,
-div.stButton > button:first-child *,
-.stTabs [aria-selected="true"],
-.stTabs [aria-selected="true"] * {
-    color: #ffffff !important;
-}
-
-/* Inactive tabs text */
-.stTabs [data-baseweb="tab"] {
+/* Force ALL text elements to black */
+p, span, label, li, td, th, caption, summary,
+h1, h2, h3, h4, h5, h6,
+div, a,
+[data-testid="stWidgetLabel"] p,
+[data-testid="stWidgetLabel"] label,
+[data-testid="stWidgetLabel"],
+.stWidgetLabel,
+.stMarkdown p,
+.stMarkdown span,
+.stMarkdown li,
+.stMarkdown div,
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] span,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stText"],
+[data-testid="stCaptionContainer"] {
     color: #000000 !important;
 }
 
-/* Dropdown popover menu styling (st.selectbox options) */
-div[role="listbox"],
-div[role="listbox"] ul,
-div[role="listbox"] li,
-div[data-baseweb="popover"],
-div[data-baseweb="popover"] * {
+/* ============================================================
+   DIALOG / MODAL — Force white background with black text
+   ============================================================ */
+div[data-testid="stModal"],
+div[data-testid="stModal"] > div,
+div[data-testid="stDialog"],
+div[data-testid="stDialog"] > div,
+div[role="dialog"],
+div[role="dialog"] > div,
+div[role="dialog"] [data-testid="stVerticalBlock"],
+div[role="dialog"] [data-testid="stMarkdownContainer"],
+div[role="dialog"] [data-testid="stWidgetLabel"],
+[data-testid="stModal"] [data-testid="stVerticalBlockBorderWrapper"],
+[data-testid="stDialog"] [data-testid="stVerticalBlockBorderWrapper"] {
     background-color: #ffffff !important;
     color: #000000 !important;
 }
-div[role="listbox"] li:hover,
-div[role="listbox"] li[aria-selected="true"] {
-    background-color: #FFD93D !important;
+
+div[role="dialog"] p,
+div[role="dialog"] span,
+div[role="dialog"] label,
+div[role="dialog"] h1,
+div[role="dialog"] h2,
+div[role="dialog"] h3,
+div[role="dialog"] div,
+div[role="dialog"] li,
+div[role="dialog"] [data-testid="stWidgetLabel"] p,
+div[role="dialog"] .stMarkdown p {
     color: #000000 !important;
 }
 
-/* Background - Creme with discrete grid typical of paper/notebook */
+/* Dialog inputs */
+div[role="dialog"] .stTextInput>div>div>input,
+div[role="dialog"] .stNumberInput>div>div>input,
+div[role="dialog"] .stSelectbox>div>div>div,
+div[role="dialog"] div[data-baseweb="select"],
+div[role="dialog"] .stTextArea textarea {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 4px solid #000000 !important;
+    border-radius: 0px !important;
+}
+
+/* Dialog radio buttons */
+div[role="dialog"] [role="radiogroup"] label,
+div[role="dialog"] [role="radiogroup"] label span,
+div[role="dialog"] [role="radiogroup"] label p,
+div[role="dialog"] [data-testid="stRadio"] label {
+    color: #000000 !important;
+}
+
+/* Dialog close button (X) */
+div[role="dialog"] button[aria-label="Close"],
+div[role="dialog"] button[aria-label="Close"] svg {
+    color: #000000 !important;
+}
+
+/* Dialog title */
+div[role="dialog"] [data-testid="stDialogTitle"],
+div[role="dialog"] h2 {
+    color: #000000 !important;
+}
+
+/* ============================================================
+   ALERTS / INFO / WARNING / ERROR / SUCCESS — Readable text
+   ============================================================ */
+div[data-testid="stAlert"],
+div[role="alert"],
+.stAlert,
+[data-testid="stNotification"] {
+    color: #000000 !important;
+}
+
+div[data-testid="stAlert"] p,
+div[data-testid="stAlert"] span,
+div[data-testid="stAlert"] div,
+div[role="alert"] p,
+div[role="alert"] span,
+div[role="alert"] div,
+.stAlert p,
+.stAlert span {
+    color: #000000 !important;
+}
+
+/* ============================================================
+   BACKGROUND — Creme with subtle grid pattern
+   ============================================================ */
 .stApp {
     background-color: #FFFDF5 !important;
     background-size: 30px 30px;
@@ -53,7 +136,9 @@ div[role="listbox"] li[aria-selected="true"] {
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 
-/* Custom Header Card - Neobrutalist Bright Yellow Banner with heavy borders and offset shadow */
+/* ============================================================
+   HEADER CARD — Neobrutalist Yellow Banner
+   ============================================================ */
 .main-header {
     background: #FFD93D !important;
     padding: 2rem;
@@ -77,17 +162,22 @@ footer {visibility: hidden;}
 }
 .main-header p {
     margin: 0.6rem 0 0;
-    color: #000000;
+    color: #000000 !important;
     font-size: 1.1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
-/* Sidebar styling overrides - Violet Neobrutalist Sidebar with thick right border */
+/* ============================================================
+   SIDEBAR — Violet Neobrutalist
+   ============================================================ */
 section[data-testid="stSidebar"] {
     background-color: #C4B5FD !important;
     border-right: 4px solid #000000 !important;
+}
+section[data-testid="stSidebar"] * {
+    color: #000000 !important;
 }
 section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 {
     color: #000000 !important;
@@ -107,24 +197,28 @@ section[data-testid="stSidebar"] div[data-testid="stExpander"] {
     border-radius: 0px !important;
     box-shadow: 4px 4px 0px 0px #000000 !important;
 }
-section[data-testid="stSidebar"] div[data-testid="stExpander"] label {
+section[data-testid="stSidebar"] div[data-testid="stExpander"] * {
     color: #000000 !important;
 }
-section[data-testid="stSidebar"] .stTextInput>div>div>input, 
-section[data-testid="stSidebar"] .stNumberInput>div>div>input, 
+section[data-testid="stSidebar"] .stTextInput>div>div>input,
+section[data-testid="stSidebar"] .stNumberInput>div>div>input,
 section[data-testid="stSidebar"] .stSelectbox>div>div>div,
-section[data-testid="stSidebar"] div[data-baseweb="select"] {
+section[data-testid="stSidebar"] div[data-baseweb="select"],
+section[data-testid="stSidebar"] .stTextArea textarea {
     background-color: #ffffff !important;
     color: #000000 !important;
     border: 4px solid #000000 !important;
     border-radius: 0px !important;
 }
 
-/* Form Inputs styling - Thick borders and flat yellow focus state */
-.stTextInput>div>div>input, 
-.stNumberInput>div>div>input, 
+/* ============================================================
+   FORM INPUTS — Thick borders, flat yellow focus
+   ============================================================ */
+.stTextInput>div>div>input,
+.stNumberInput>div>div>input,
 .stSelectbox>div>div>div,
-div[data-baseweb="select"] {
+div[data-baseweb="select"],
+.stTextArea textarea {
     border-radius: 0px !important;
     border: 4px solid #000000 !important;
     background-color: #ffffff !important;
@@ -133,16 +227,39 @@ div[data-baseweb="select"] {
     font-size: 1rem !important;
     font-weight: 700 !important;
 }
-.stTextInput>div>div>input:focus, 
+.stTextInput>div>div>input:focus,
 .stNumberInput>div>div>input:focus,
-div[data-baseweb="select"]:focus {
+div[data-baseweb="select"]:focus,
+.stTextArea textarea:focus {
     border-color: #000000 !important;
-    background-color: #FFD93D !important; /* Neobrutalist focus color */
+    background-color: #FFD93D !important;
     box-shadow: 4px 4px 0px 0px #000000 !important;
     outline: none !important;
+    color: #000000 !important;
 }
 
-/* Expanders styling */
+/* ============================================================
+   DROPDOWN / POPOVER menus
+   ============================================================ */
+div[role="listbox"],
+div[role="listbox"] ul,
+div[role="listbox"] li,
+div[data-baseweb="popover"],
+div[data-baseweb="popover"] *,
+div[data-baseweb="menu"],
+div[data-baseweb="menu"] * {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+div[role="listbox"] li:hover,
+div[role="listbox"] li[aria-selected="true"] {
+    background-color: #FFD93D !important;
+    color: #000000 !important;
+}
+
+/* ============================================================
+   EXPANDERS
+   ============================================================ */
 div[data-testid="stExpander"] {
     background-color: #ffffff !important;
     border: 4px solid #000000 !important;
@@ -150,8 +267,13 @@ div[data-testid="stExpander"] {
     box-shadow: 6px 6px 0px 0px #000000 !important;
     margin-bottom: 1rem !important;
 }
+div[data-testid="stExpander"] * {
+    color: #000000 !important;
+}
 
-/* Forms styling */
+/* ============================================================
+   FORMS
+   ============================================================ */
 div[data-testid="stForm"] {
     background-color: #ffffff !important;
     border-radius: 0px !important;
@@ -160,10 +282,14 @@ div[data-testid="stForm"] {
     box-shadow: 8px 8px 0px 0px #000000 !important;
 }
 
-/* Premium Buttons styling - Satisfying Mechanical Red Click Button */
+/* ============================================================
+   BUTTONS — Mechanical Red
+   ============================================================ */
+
+/* White text ONLY on buttons */
 div.stButton > button:first-child,
 div.stFormSubmitButton > button:first-child {
-    background: #FF6B6B !important; /* Bold Red */
+    background: #FF6B6B !important;
     color: #ffffff !important;
     border: 4px solid #000000 !important;
     border-radius: 0px !important;
@@ -175,6 +301,14 @@ div.stFormSubmitButton > button:first-child {
     transition: transform 0.05s ease-out, box-shadow 0.05s ease-out !important;
     width: 100%;
 }
+div.stButton > button:first-child *,
+div.stFormSubmitButton > button:first-child *,
+div.stButton > button:first-child p,
+div.stFormSubmitButton > button:first-child p,
+div.stButton > button:first-child span,
+div.stFormSubmitButton > button:first-child span {
+    color: #ffffff !important;
+}
 div.stButton > button:first-child:hover,
 div.stFormSubmitButton > button:first-child:hover {
     background: #ff5252 !important;
@@ -183,7 +317,7 @@ div.stFormSubmitButton > button:first-child:hover {
 }
 div.stButton > button:first-child:active,
 div.stFormSubmitButton > button:first-child:active {
-    transform: translate(4px, 4px) !important; /* Mechanical push down over its shadow */
+    transform: translate(4px, 4px) !important;
     box-shadow: 0px 0px 0px 0px #000000 !important;
 }
 div.stButton > button:first-child:disabled,
@@ -196,7 +330,25 @@ div.stFormSubmitButton > button:first-child:disabled {
     transform: none !important;
 }
 
-/* Uploader box */
+/* Download buttons — same style */
+div.stDownloadButton > button:first-child {
+    background: #FF6B6B !important;
+    color: #ffffff !important;
+    border: 4px solid #000000 !important;
+    border-radius: 0px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    box-shadow: 4px 4px 0px 0px #000000 !important;
+}
+div.stDownloadButton > button:first-child *,
+div.stDownloadButton > button:first-child p,
+div.stDownloadButton > button:first-child span {
+    color: #ffffff !important;
+}
+
+/* ============================================================
+   FILE UPLOADER
+   ============================================================ */
 section[data-testid="stFileUploader"] {
     border-radius: 0px !important;
     border: 4px dashed #000000 !important;
@@ -209,7 +361,9 @@ section[data-testid="stFileUploader"]:hover {
     background-color: #FFFDF5 !important;
 }
 
-/* Neobrutalist Result Cards - Thick Black Outlines & Solid Offset Shadows */
+/* ============================================================
+   RESULT CARDS — Thick Outlines & Offset Shadows
+   ============================================================ */
 .result-card {
     background: #ffffff !important;
     border-radius: 0px !important;
@@ -239,29 +393,19 @@ section[data-testid="stFileUploader"]:hover {
     color: #000000 !important;
 }
 
-/* Customized card variations - Bold Flat Pastels */
-.result-card-green {
-    background: #86EFAC !important; /* Pop green */
-}
-.result-card-green .value {
-    color: #000000 !important;
-}
+/* Card color variations */
+.result-card-green { background: #86EFAC !important; }
+.result-card-green .value, .result-card-green .label { color: #000000 !important; }
 
-.result-card-orange {
-    background: #FFD93D !important; /* Pop yellow */
-}
-.result-card-orange .value {
-    color: #000000 !important;
-}
+.result-card-orange { background: #FFD93D !important; }
+.result-card-orange .value, .result-card-orange .label { color: #000000 !important; }
 
-.result-card-blue {
-    background: #93C5FD !important; /* Pop blue */
-}
-.result-card-blue .value {
-    color: #000000 !important;
-}
+.result-card-blue { background: #93C5FD !important; }
+.result-card-blue .value, .result-card-blue .label { color: #000000 !important; }
 
-/* Titles and dividers */
+/* ============================================================
+   SECTION TITLES & DIVIDERS
+   ============================================================ */
 .section-title {
     font-size: 1.5rem !important;
     font-weight: 900 !important;
@@ -297,10 +441,11 @@ section[data-testid="stFileUploader"]:hover {
     font-size: 1rem;
     font-weight: 700;
     color: #000000;
-    position: relative;
 }
 
-/* Tabs styling overrides */
+/* ============================================================
+   TABS — Neobrutalist Folder Tabs
+   ============================================================ */
 .stTabs [data-baseweb="tab-list"] {
     gap: 10px;
     background-color: transparent !important;
@@ -321,6 +466,9 @@ section[data-testid="stFileUploader"]:hover {
     margin-bottom: -4px !important;
     transition: transform 0.1s ease-out !important;
 }
+.stTabs [data-baseweb="tab"] * {
+    color: #000000 !important;
+}
 .stTabs [data-baseweb="tab"]:hover {
     background-color: #FFD93D !important;
 }
@@ -330,5 +478,70 @@ section[data-testid="stFileUploader"]:hover {
     transform: translateY(-4px) !important;
     box-shadow: 4px 4px 0px 0px #000000 !important;
 }
+.stTabs [aria-selected="true"] *,
+.stTabs [aria-selected="true"] p,
+.stTabs [aria-selected="true"] span {
+    color: #ffffff !important;
+}
+
+/* ============================================================
+   DATA EDITOR / DATAFRAME — Force white bg and black text
+   ============================================================ */
+[data-testid="stDataFrame"],
+[data-testid="stDataEditor"],
+[data-testid="stDataFrame"] *,
+[data-testid="stDataEditor"] * {
+    color: #000000 !important;
+}
+
+/* ============================================================
+   MULTISELECT / TAGS
+   ============================================================ */
+div[data-baseweb="tag"] {
+    background-color: #FFD93D !important;
+    color: #000000 !important;
+}
+div[data-baseweb="tag"] * {
+    color: #000000 !important;
+}
+
+/* ============================================================
+   TOOLTIPS
+   ============================================================ */
+div[data-baseweb="tooltip"],
+div[data-baseweb="tooltip"] * {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+}
+
+/* ============================================================
+   METRIC / NUMBER INPUT steppers
+   ============================================================ */
+.stNumberInput button {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    border: 2px solid #000000 !important;
+    border-radius: 0px !important;
+}
+
+/* ============================================================
+   CHECKBOX / RADIO — Force black text
+   ============================================================ */
+[data-testid="stCheckbox"] label,
+[data-testid="stCheckbox"] label *,
+[data-testid="stRadio"] label,
+[data-testid="stRadio"] label *,
+[role="radiogroup"] label,
+[role="radiogroup"] label * {
+    color: #000000 !important;
+}
+
+/* ============================================================
+   SCROLLBAR (optional) — Subtle dark track
+   ============================================================ */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #FFFDF5; }
+::-webkit-scrollbar-thumb { background: #000000; border-radius: 0px; }
+
 </style>
 """

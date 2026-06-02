@@ -1,137 +1,162 @@
 CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&display=swap');
 
 /* Apply font to all elements */
 html, body, [class*="css"], .stApp {
-    font-family: 'Outfit', sans-serif !important;
+    font-family: 'Space Grotesk', sans-serif !important;
 }
 
-/* Background */
+/* Background - Creme with discrete grid typical of paper/notebook */
 .stApp {
-    background-color: #f1f5f9 !important; /* Slate light background typical of CAD systems */
+    background-color: #FFFDF5 !important;
+    background-size: 30px 30px;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px) !important;
 }
 
 /* Hide Streamlit native menus */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 
-/* Custom Header Card - SigmaNEST Inspired Deep Navy */
+/* Custom Header Card - Neobrutalist Bright Yellow Banner with heavy borders and offset shadow */
 .main-header {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    padding: 2.2rem 2rem;
-    border-radius: 16px;
-    margin-bottom: 2rem;
-    color: white;
+    background: #FFD93D !important;
+    padding: 2rem;
+    border: 4px solid #000000 !important;
+    border-radius: 0px !important;
+    margin-bottom: 2.5rem;
+    color: #000000 !important;
     text-align: center;
-    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.15);
-    border-bottom: 4px solid #f04e23; /* Signature SigmaNEST Red-Orange accent border */
+    box-shadow: 8px 8px 0px 0px #000000 !important;
+    transform: rotate(-1.2deg);
 }
 .main-header h1 {
     margin: 0;
-    font-size: 2.2rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    background: linear-gradient(90deg, #ffffff 60%, #ffedd5 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    font-size: 2.5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    color: #000000 !important;
+    -webkit-text-stroke: 1.5px #000000;
+    text-shadow: 3px 3px 0px #ffffff;
 }
 .main-header p {
     margin: 0.6rem 0 0;
-    color: #94a3b8;
-    font-size: 1.05rem;
-    font-weight: 500;
+    color: #000000;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-/* Sidebar styling overrides */
+/* Sidebar styling overrides - Violet Neobrutalist Sidebar with thick right border */
 section[data-testid="stSidebar"] {
-    background-color: #0f172a !important; /* Dark theme sidebar like CAD software */
-    border-right: 1px solid #1e293b !important;
+    background-color: #C4B5FD !important;
+    border-right: 4px solid #000000 !important;
 }
 section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2 {
-    color: #ffffff !important;
-    font-weight: 700 !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
 }
 section[data-testid="stSidebar"] label {
-    color: #cbd5e1 !important; /* Light label text for dark sidebar */
+    color: #000000 !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    font-size: 0.9rem !important;
 }
 section[data-testid="stSidebar"] div[data-testid="stExpander"] {
-    background-color: #1e293b !important;
-    border: 1px solid #334155 !important;
+    background-color: #ffffff !important;
+    border: 4px solid #000000 !important;
+    border-radius: 0px !important;
+    box-shadow: 4px 4px 0px 0px #000000 !important;
 }
 section[data-testid="stSidebar"] div[data-testid="stExpander"] label {
-    color: #f8fafc !important;
+    color: #000000 !important;
 }
 section[data-testid="stSidebar"] .stTextInput>div>div>input, 
 section[data-testid="stSidebar"] .stNumberInput>div>div>input, 
 section[data-testid="stSidebar"] .stSelectbox>div>div>div,
 section[data-testid="stSidebar"] div[data-baseweb="select"] {
-    background-color: #0f172a !important;
-    color: #ffffff !important;
-    border: 1px solid #475569 !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 4px solid #000000 !important;
+    border-radius: 0px !important;
 }
 
-/* Form Inputs styling */
+/* Form Inputs styling - Thick borders and flat yellow focus state */
 .stTextInput>div>div>input, 
 .stNumberInput>div>div>input, 
 .stSelectbox>div>div>div,
 div[data-baseweb="select"] {
-    border-radius: 8px !important;
-    border: 1px solid #cbd5e1 !important;
+    border-radius: 0px !important;
+    border: 4px solid #000000 !important;
     background-color: #ffffff !important;
-    color: #0f172a !important;
-    transition: all 0.2s ease-in-out !important;
-    font-size: 0.95rem !important;
+    color: #000000 !important;
+    transition: none !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
 }
 .stTextInput>div>div>input:focus, 
 .stNumberInput>div>div>input:focus,
 div[data-baseweb="select"]:focus {
-    border-color: #f04e23 !important; /* Focus in SigmaNEST orange-red */
-    box-shadow: 0 0 0 3px rgba(240, 78, 35, 0.15) !important;
+    border-color: #000000 !important;
+    background-color: #FFD93D !important; /* Neobrutalist focus color */
+    box-shadow: 4px 4px 0px 0px #000000 !important;
+    outline: none !important;
 }
 
 /* Expanders styling */
 div[data-testid="stExpander"] {
     background-color: #ffffff !important;
-    border: 1px solid #cbd5e1 !important;
-    border-radius: 8px !important;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
-    margin-bottom: 0.5rem !important;
+    border: 4px solid #000000 !important;
+    border-radius: 0px !important;
+    box-shadow: 6px 6px 0px 0px #000000 !important;
+    margin-bottom: 1rem !important;
 }
 
 /* Forms styling */
 div[data-testid="stForm"] {
     background-color: #ffffff !important;
-    border-radius: 12px !important;
-    border: 1px solid #cbd5e1 !important;
+    border-radius: 0px !important;
+    border: 4px solid #000000 !important;
     padding: 1.5rem !important;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 8px 8px 0px 0px #000000 !important;
 }
 
-/* Premium Buttons styling - SigmaNEST Red-Orange Gradient */
+/* Premium Buttons styling - Satisfying Mechanical Red Click Button */
 div.stButton > button:first-child,
 div.stFormSubmitButton > button:first-child {
-    background: linear-gradient(135deg, #f04e23 0%, #d93c1a 100%) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 0.6rem 1.8rem !important;
-    font-weight: 600 !important;
-    font-size: 0.95rem !important;
-    box-shadow: 0 4px 10px -2px rgba(240, 78, 35, 0.3) !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: #FF6B6B !important; /* Bold Red */
+    color: #ffffff !important;
+    border: 4px solid #000000 !important;
+    border-radius: 0px !important;
+    padding: 0.75rem 1.8rem !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    font-size: 1rem !important;
+    box-shadow: 4px 4px 0px 0px #000000 !important;
+    transition: transform 0.05s ease-out, box-shadow 0.05s ease-out !important;
     width: 100%;
 }
 div.stButton > button:first-child:hover,
 div.stFormSubmitButton > button:first-child:hover {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 6px 14px -2px rgba(240, 78, 35, 0.45) !important;
-    background: linear-gradient(135deg, #f2623c 0%, #f04e23 100%) !important;
+    background: #ff5252 !important;
+    transform: translate(-2px, -2px) !important;
+    box-shadow: 6px 6px 0px 0px #000000 !important;
+}
+div.stButton > button:first-child:active,
+div.stFormSubmitButton > button:first-child:active {
+    transform: translate(4px, 4px) !important; /* Mechanical push down over its shadow */
+    box-shadow: 0px 0px 0px 0px #000000 !important;
 }
 div.stButton > button:first-child:disabled,
 div.stFormSubmitButton > button:first-child:disabled {
-    background: #cbd5e1 !important;
-    color: #64748b !important;
+    background: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    border-color: #94a3b8 !important;
     box-shadow: none !important;
     cursor: not-allowed !important;
     transform: none !important;
@@ -139,130 +164,137 @@ div.stFormSubmitButton > button:first-child:disabled {
 
 /* Uploader box */
 section[data-testid="stFileUploader"] {
-    border-radius: 12px !important;
-    border: 2px dashed #94a3b8 !important;
+    border-radius: 0px !important;
+    border: 4px dashed #000000 !important;
     background-color: #ffffff !important;
     padding: 1.5rem !important;
-    transition: border-color 0.2s !important;
+    box-shadow: 6px 6px 0px 0px #000000 !important;
 }
 section[data-testid="stFileUploader"]:hover {
-    border-color: #f04e23 !important;
+    border-style: solid !important;
+    background-color: #FFFDF5 !important;
 }
 
-/* Stripe-style Result Cards */
+/* Neobrutalist Result Cards - Thick Black Outlines & Solid Offset Shadows */
 .result-card {
     background: #ffffff !important;
-    border-radius: 12px !important;
+    border-radius: 0px !important;
     padding: 1.25rem !important;
-    color: #0f172a !important;
+    color: #000000 !important;
     text-align: center !important;
-    margin-bottom: 1rem !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
-    border: 1px solid #cbd5e1 !important;
-    transition: all 0.2s ease-in-out !important;
+    margin-bottom: 1.2rem !important;
+    box-shadow: 6px 6px 0px 0px #000000 !important;
+    border: 4px solid #000000 !important;
+    transition: transform 0.15s ease-out, box-shadow 0.15s ease-out !important;
 }
 .result-card:hover {
-    transform: translateY(-2px) !important;
-    border-color: #94a3b8 !important;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03) !important;
+    transform: translate(-4px, -4px) !important;
+    box-shadow: 10px 10px 0px 0px #000000 !important;
 }
 .result-card .label {
-    font-size: 0.75rem !important;
+    font-size: 0.8rem !important;
     text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    color: #64748b !important;
-    margin-bottom: 0.4rem !important;
-    font-weight: 700 !important;
+    letter-spacing: 1.5px !important;
+    color: #000000 !important;
+    margin-bottom: 0.5rem !important;
+    font-weight: 900 !important;
 }
 .result-card .value {
     font-size: 1.8rem !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
 }
 
-/* Customized card variations */
+/* Customized card variations - Bold Flat Pastels */
 .result-card-green {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
-    border-color: #bbf7d0 !important;
+    background: #86EFAC !important; /* Pop green */
 }
 .result-card-green .value {
-    color: #15803d !important;
+    color: #000000 !important;
 }
 
 .result-card-orange {
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
-    border-color: #fde68a !important;
+    background: #FFD93D !important; /* Pop yellow */
 }
 .result-card-orange .value {
-    color: #b45309 !important;
+    color: #000000 !important;
 }
 
 .result-card-blue {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
-    border-color: #bfdbfe !important;
+    background: #93C5FD !important; /* Pop blue */
 }
 .result-card-blue .value {
-    color: #1d4ed8 !important;
+    color: #000000 !important;
 }
 
 /* Titles and dividers */
 .section-title {
-    font-size: 1.3rem !important;
-    font-weight: 800 !important;
-    color: #0f172a !important;
+    font-size: 1.5rem !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+    text-transform: uppercase !important;
     display: flex !important;
     align-items: center !important;
-    gap: 10px !important;
-    margin: 2rem 0 1.2rem !important;
+    gap: 12px !important;
+    margin: 2.5rem 0 1.5rem !important;
 }
 .section-title::before {
     content: '' !important;
     display: block !important;
-    width: 4px !important;
-    height: 24px !important;
-    background: linear-gradient(180deg, #f04e23 0%, #d93c1a 100%) !important;
-    border-radius: 2px !important;
+    width: 8px !important;
+    height: 28px !important;
+    background: #FFD93D !important;
+    border: 3px solid #000000 !important;
+    border-radius: 0px !important;
 }
 .custom-divider {
     border: none;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
-    margin: 2rem 0;
+    height: 4px;
+    background: #000000;
+    margin: 2.5rem 0;
 }
 .info-box {
-    background: #f0fdfa;
-    border-left: 4px solid #0d9488;
-    padding: 0.8rem 1rem;
-    border-radius: 0 8px 8px 0;
-    margin: 1.2rem 0;
-    font-size: 0.9rem;
-    color: #115e59;
+    background: #ffffff;
+    border: 4px solid #000000;
+    padding: 1rem;
+    border-radius: 0px;
+    box-shadow: 4px 4px 0px 0px #000000;
+    margin: 1.5rem 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #000000;
+    position: relative;
 }
 
 /* Tabs styling overrides */
 .stTabs [data-baseweb="tab-list"] {
-    gap: 8px;
-    background-color: #e2e8f0 !important;
-    padding: 4px 6px !important;
-    border-radius: 10px !important;
-    border: 1px solid #cbd5e1 !important;
+    gap: 10px;
+    background-color: transparent !important;
+    padding: 0px !important;
+    border-bottom: 4px solid #000000 !important;
+    border-radius: 0px !important;
 }
 .stTabs [data-baseweb="tab"] {
-    color: #475569 !important;
-    font-weight: 600 !important;
-    padding: 6px 12px !important;
-    border-radius: 6px !important;
-    border: none !important;
-    transition: all 0.2s !important;
+    color: #000000 !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+    padding: 8px 16px !important;
+    border-radius: 0px !important;
+    border-top: 4px solid #000000 !important;
+    border-left: 4px solid #000000 !important;
+    border-right: 4px solid #000000 !important;
+    background-color: #ffffff !important;
+    margin-bottom: -4px !important;
+    transition: transform 0.1s ease-out !important;
 }
 .stTabs [data-baseweb="tab"]:hover {
-    color: #0f172a !important;
-    background-color: #cbd5e1 !important;
+    background-color: #FFD93D !important;
 }
 .stTabs [aria-selected="true"] {
     color: #ffffff !important;
-    background: linear-gradient(135deg, #f04e23 0%, #d93c1a 100%) !important;
-    box-shadow: 0 2px 8px rgba(240, 78, 35, 0.2) !important;
+    background-color: #FF6B6B !important;
+    transform: translateY(-4px) !important;
+    box-shadow: 4px 4px 0px 0px #000000 !important;
 }
 </style>
 """

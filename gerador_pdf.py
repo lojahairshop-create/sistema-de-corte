@@ -48,12 +48,12 @@ def gerar_preview_geometria(item, dxf_bytes=None):
                 tipo = entity.dxftype()
                 if tipo == 'LINE':
                     s, e = entity.dxf.start, entity.dxf.end
-                    ax.plot([s.x, e.x], [s.y, e.y], color='#0f172a', linewidth=0.8)
+                    ax.plot([s.x, e.x], [s.y, e.y], color='#000000', linewidth=1.2)
                     plotted = True
                 elif tipo == 'CIRCLE':
                     c = entity.dxf.center
                     r = entity.dxf.radius
-                    circle = plt.Circle((c.x, c.y), r, fill=False, color='#0f172a', linewidth=0.8)
+                    circle = plt.Circle((c.x, c.y), r, fill=False, color='#000000', linewidth=1.2)
                     ax.add_patch(circle)
                     plotted = True
                 elif tipo == 'ARC':
@@ -63,7 +63,7 @@ def gerar_preview_geometria(item, dxf_bytes=None):
                     a1 = entity.dxf.start_angle
                     a2 = entity.dxf.end_angle
                     # Draw using a patch
-                    arc = patches.Arc((c.x, c.y), r*2, r*2, angle=0, theta1=a1, theta2=a2, color='#0f172a', linewidth=0.8)
+                    arc = patches.Arc((c.x, c.y), r*2, r*2, angle=0, theta1=a1, theta2=a2, color='#000000', linewidth=1.2)
                     ax.add_patch(arc)
                     plotted = True
                 elif tipo == 'LWPOLYLINE':
@@ -74,7 +74,7 @@ def gerar_preview_geometria(item, dxf_bytes=None):
                         if entity.closed:
                             xs.append(pts[0][0])
                             ys.append(pts[0][1])
-                        ax.plot(xs, ys, color='#0f172a', linewidth=0.8)
+                        ax.plot(xs, ys, color='#000000', linewidth=1.2)
                         plotted = True
                 elif tipo == 'POLYLINE':
                     pts = [(v.dxf.location.x, v.dxf.location.y) for v in entity.vertices]
@@ -84,7 +84,7 @@ def gerar_preview_geometria(item, dxf_bytes=None):
                         if entity.is_closed:
                             xs.append(pts[0][0])
                             ys.append(pts[0][1])
-                        ax.plot(xs, ys, color='#0f172a', linewidth=0.8)
+                        ax.plot(xs, ys, color='#000000', linewidth=1.2)
                         plotted = True
         except Exception as e:
             # Fallback quietly to rectangular drawing if dxf rendering fails
@@ -102,8 +102,8 @@ def gerar_preview_geometria(item, dxf_bytes=None):
         h = item.get('compr', 100.0)
         if w <= 0: w = 100.0
         if h <= 0: h = 100.0
-        # Draw a clean rectangle
-        rect = patches.Rectangle((0, 0), w, h, fill=False, edgecolor='#4f46e5', linewidth=1.2)
+        # Draw a bold black rectangle
+        rect = patches.Rectangle((0, 0), w, h, fill=False, edgecolor='#000000', linewidth=2.0)
         ax.add_patch(rect)
         ax.set_xlim(-w*0.05, w*1.05)
         ax.set_ylim(-h*0.05, h*1.05)
@@ -151,28 +151,30 @@ class NumberedCanvas(canvas.Canvas):
             except Exception as e:
                 # Text fallback if image loading fails
                 self.setFont("Helvetica-Bold", 16)
-                self.setFillColor(colors.HexColor("#0f172a"))
+                self.setFillColor(colors.HexColor("#000000"))
                 self.drawString(36, 765, getattr(self, 'company_name', "ORÇAMENTO INDUSTRIAL"))
         else:
             self.setFont("Helvetica-Bold", 16)
-            self.setFillColor(colors.HexColor("#0f172a"))
+            self.setFillColor(colors.HexColor("#000000"))
             self.drawString(36, 765, getattr(self, 'company_name', "ORÇAMENTO INDUSTRIAL"))
             
         # Número do Orçamento
         num_orcamento = getattr(self, 'num_orcamento', '0001')
         self.setFont("Helvetica-Bold", 14)
-        self.setFillColor(colors.HexColor("#0f172a"))
+        self.setFillColor(colors.HexColor("#000000"))
         self.drawRightString(559, 765, f"Nº Orçamento : {num_orcamento}")
         
-        # Linha do Cabeçalho
-        self.setStrokeColor(colors.HexColor("#cbd5e1"))
-        self.setLineWidth(0.8)
+        # Linha do Cabeçalho - Neobrutalist bold line
+        self.setStrokeColor(colors.HexColor("#000000"))
+        self.setLineWidth(1.5)
         self.line(36, 740, 559, 740)
         
         # 2. RODAPÉ (Em todas as páginas)
+        self.setStrokeColor(colors.HexColor("#000000"))
+        self.setLineWidth(1.5)
         self.line(36, 40, 559, 40)
         self.setFont("Helvetica", 8)
-        self.setFillColor(colors.HexColor("#64748b"))
+        self.setFillColor(colors.HexColor("#000000"))
         self.drawString(36, 25, f"{getattr(self, 'company_name', 'Orçamento')} — Todos os direitos reservados.")
         
         page_text = f"Página {self._pageNumber} de {page_count}"
@@ -206,9 +208,9 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     styles = getSampleStyleSheet()
     
     # Estilos customizados
-    style_normal = ParagraphStyle('Normal_Custom', parent=styles['Normal'], fontSize=8, leading=10, textColor=colors.HexColor("#334155"))
+    style_normal = ParagraphStyle('Normal_Custom', parent=styles['Normal'], fontSize=8, leading=10, textColor=colors.HexColor("#000000"))
     style_bold = ParagraphStyle('Bold_Custom', parent=style_normal, fontName='Helvetica-Bold')
-    style_h2 = ParagraphStyle('H2_Custom', parent=styles['Heading2'], fontSize=11, leading=14, fontName='Helvetica-Bold', textColor=colors.HexColor("#0f172a"), spaceBefore=10, spaceAfter=6)
+    style_h2 = ParagraphStyle('H2_Custom', parent=styles['Heading2'], fontSize=11, leading=14, fontName='Helvetica-Bold', textColor=colors.HexColor("#000000"), spaceBefore=10, spaceAfter=6)
     style_cell = ParagraphStyle('Cell_Custom', parent=style_normal, fontSize=8, leading=9)
     style_cell_center = ParagraphStyle('Cell_Center_Custom', parent=style_cell, alignment=1)
     style_cell_bold = ParagraphStyle('Cell_Bold_Custom', parent=style_cell, fontName='Helvetica-Bold')
@@ -254,7 +256,7 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     
     # === SEÇÃO 2: TABELA DE ITENS ===
     # A4 printable area width is 595 - 72 = 523
-    col_widths = [20, 75, 120, 50, 100, 30, 64, 64]
+    col_widths = [25, 65, 120, 45, 80, 30, 78, 80]
     table_data = [[
         Paragraph("<b>ITEM</b>", style_cell_bold_center),
         Paragraph("<b>DIMENSÃO</b>", style_cell_bold_center),
@@ -327,8 +329,8 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
         
     items_table = Table(table_data, colWidths=col_widths, repeatRows=1)
     items_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f1f5f9")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#FFD93D")), # Neobrutalist Yellow Accent
+        ('GRID', (0,0), (-1,-1), 1.5, colors.HexColor("#000000")), # Bold black borders
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('TOPPADDING', (0,0), (-1,-1), 6),
         ('BOTTOMPADDING', (0,0), (-1,-1), 6),
@@ -349,13 +351,23 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     
     # IPI info text
     tx_ipi_desc = f"Venda IPI - {config_global.get('taxas_impostos', {}).get('ipi', 0.05)*100:.2f}%"
+    ajuste_val = config_global.get('ajuste_comercial', 0.0)
+    ajuste_text = ""
+    if ajuste_val != 0.0:
+        tipo_aj = "Acréscimo" if ajuste_val > 0 else "Desconto"
+        ajuste_text = f"(* Inclui {tipo_aj} de {abs(ajuste_val):.1f}%)"
+
     totais_cell = [
-        Paragraph(f"<b>VALOR TOTAL : R$ {total_nf:,.2f}</b>", ParagraphStyle('TotalVal', parent=style_cell_bold, fontSize=12, leading=14, alignment=2, textColor=colors.HexColor("#1e293b"))),
-        Paragraph(f"({tx_ipi_desc} / Benef. Isento)", ParagraphStyle('TotalValSub', parent=style_cell, alignment=2, textColor=colors.HexColor("#475569"))),
+        Paragraph(f"<b>VALOR TOTAL : R$ {total_nf:,.2f}</b>", ParagraphStyle('TotalVal', parent=style_cell_bold, fontSize=12, leading=14, alignment=2, textColor=colors.HexColor("#000000"))),
+        Paragraph(f"({tx_ipi_desc} / Benef. Isento)", ParagraphStyle('TotalValSub', parent=style_cell, alignment=2, textColor=colors.HexColor("#000000"))),
+    ]
+    if ajuste_text:
+        totais_cell.append(Paragraph(ajuste_text, ParagraphStyle('TotalAjuste', parent=style_cell, alignment=2, textColor=colors.HexColor("#000000"), fontName='Helvetica-Bold')))
+    totais_cell.extend([
         Spacer(1, 4),
         Paragraph(f"Total de {total_itens_qtd} peças", ParagraphStyle('TotalQty', parent=style_cell, alignment=2)),
         Paragraph(f"Peso total do orçamento {total_peso:.2f} Kg", ParagraphStyle('TotalWeight', parent=style_cell, alignment=2))
-    ]
+    ])
     
     summary_data = [
         [coment_cell, totais_cell]
@@ -364,12 +376,12 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     summary_table = Table(summary_data, colWidths=[300, 223])
     summary_table.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('GRID', (0,0), (-1,-1), 0.8, colors.HexColor("#94a3b8")),
+        ('GRID', (0,0), (-1,-1), 2.0, colors.HexColor("#000000")), # Thick black grid
         ('TOPPADDING', (0,0), (-1,-1), 8),
         ('BOTTOMPADDING', (0,0), (-1,-1), 8),
         ('LEFTPADDING', (0,0), (-1,-1), 8),
         ('RIGHTPADDING', (0,0), (-1,-1), 8),
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#f8fafc")),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#FFFDF5")), # Paper creme background
     ]))
     
     story.append(KeepTogether(summary_table))
@@ -412,8 +424,8 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     
     terms_grid_table = Table(terms_grid_data, colWidths=[130, 393])
     terms_grid_table.setStyle(TableStyle([
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")),
-        ('BACKGROUND', (0,0), (0,-1), colors.HexColor("#f1f5f9")),
+        ('GRID', (0,0), (-1,-1), 1.5, colors.HexColor("#000000")), # Bold black border
+        ('BACKGROUND', (0,0), (0,-1), colors.HexColor("#C4B5FD")), # Neobrutalist Violet Accent
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('TOPPADDING', (0,0), (-1,-1), 5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 5),

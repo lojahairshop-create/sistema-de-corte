@@ -66,6 +66,7 @@ with st.sidebar:
     with st.expander("💰 Margem e Comissão", expanded=True):
         margem_lucro = st.number_input("Margem de Lucro (%)", value=float(cfg.get("margem", 30.0)), step=5.0, format="%.1f", key="margem", on_change=save_s, args=("margem",)) / 100
         taxa_comissao = st.number_input("Comissão (%)", value=float(cfg.get("comissao", 3.0)), step=0.5, format="%.1f", key="comissao", on_change=save_s, args=("comissao",)) / 100
+        ajuste_comercial = st.number_input("Acréscimo (+) / Desconto (-) (%)", value=float(cfg.get("ajuste_comercial", 0.0)), step=1.0, format="%.1f", key="ajuste_comercial", on_change=save_s, args=("ajuste_comercial",))
         
     with st.expander("🛠️ Tarifas Hora-Máquina (R$/h)", expanded=False):
         tar_corte = st.number_input("Corte Laser", value=float(cfg.get("tar_corte", 450.0)), step=10.0, key="tar_corte", on_change=save_s, args=("tar_corte",))
@@ -98,13 +99,15 @@ with st.sidebar:
 
         logo_uploaded = st.file_uploader("Logo da Empresa (PNG/JPG)", type=["png", "jpg", "jpeg"], key=f"logo_uploader_{st.session_state.logo_uploader_key}")
         if logo_uploaded is not None:
-            logo_bytes = logo_uploaded.getvalue()
-            try:
-                with open("logo_customizado.bin", "wb") as f:
-                    f.write(logo_bytes)
-            except:
-                pass
-            st.rerun()
+            new_logo_bytes = logo_uploaded.getvalue()
+            if new_logo_bytes != logo_bytes:
+                logo_bytes = new_logo_bytes
+                try:
+                    with open("logo_customizado.bin", "wb") as f:
+                        f.write(logo_bytes)
+                except:
+                    pass
+                st.rerun()
 
         if logo_bytes is not None:
             st.image(logo_bytes, caption="Logotipo do PDF", width=150)
@@ -150,7 +153,8 @@ config_global = {
     'taxa_comissao': taxa_comissao,
     'taxas_impostos': taxas_impostos,
     'tarifas': tarifas,
-    'precos_material': precos_material
+    'precos_material': precos_material,
+    'ajuste_comercial': ajuste_comercial
 }
 
 # === DADOS DO PROJETO ===
@@ -671,30 +675,31 @@ RESUMO DOS TOTAIS:
             if best:
                 st.success(f"Nesting calculado! Aproveitamento: **{aprov:.1f}%** | Layout: **{best['desc']}** | Peças acomodadas: **{best['qtd']} / {item['qtd']}**")
                 
-                # Plot layout in SigmaNEST CAD style
-                fig, ax = plt.subplots(figsize=(10, 6), facecolor='#0f172a')
-                ax.set_facecolor('#0f172a')
+                # Plot layout in Neobrutalist style
+                fig, ax = plt.subplots(figsize=(10, 6), facecolor='#FFFDF5')
+                ax.set_facecolor('#FFFDF5')
                 
-                # Plate outline (Deep Slate with White boundary)
-                ax.add_patch(patches.Rectangle((0, 0), n_w, n_c, edgecolor='#f8fafc', facecolor='#1e293b', linewidth=2, label='Chapa'))
+                # Plate outline (White fill with heavy Black border)
+                ax.add_patch(patches.Rectangle((0, 0), n_w, n_c, edgecolor='#000000', facecolor='#ffffff', linewidth=3, label='Chapa'))
                 
-                # Nested parts in CAD green
+                # Nested parts in Yellow with thick Black borders
                 for r in best['rects']:
                     ax.add_patch(patches.Rectangle(
                         (r['x'], r['y']), r['w'], r['h'], 
-                        edgecolor='#22c55e', facecolor='#22c55e', alpha=0.45, linewidth=1.5
+                        edgecolor='#000000', facecolor='#FFD93D', alpha=1.0, linewidth=2
                     ))
                     
                 ax.set_xlim(-100, n_w + 100)
                 ax.set_ylim(-100, n_c + 100)
                 ax.set_aspect('equal')
                 
-                # Style ticks and labels to look clean
-                ax.tick_params(colors='#94a3b8')
-                ax.xaxis.label.set_color('#94a3b8')
-                ax.yaxis.label.set_color('#94a3b8')
+                # Style ticks and labels to look clean and high-contrast
+                ax.tick_params(colors='#000000')
+                ax.xaxis.label.set_color('#000000')
+                ax.yaxis.label.set_color('#000000')
                 for spine in ax.spines.values():
-                    spine.set_color('#334155')
+                    spine.set_color('#000000')
+                    spine.set_linewidth(2.5)
                     
                 st.pyplot(fig)
             else:

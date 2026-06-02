@@ -223,6 +223,10 @@ def calcular_item_completo(item_data, config):
     margem = config.get('margem_lucro', 0.30)
     venda_sem_imp = custo_basico * (1.0 + margem)
     
+    # Aplicar acréscimo / desconto comercial
+    ajuste = config.get('ajuste_comercial', 0.0) / 100.0
+    venda_sem_imp = venda_sem_imp * (1.0 + ajuste)
+    
     icms_rate = taxas_imp.get('icms', 0.18)
     pis_rate = taxas_imp.get('pis', 0.0065)
     cofins_rate = taxas_imp.get('cofins', 0.03)

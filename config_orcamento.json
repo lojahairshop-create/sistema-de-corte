@@ -1,0 +1,29 @@
+{
+    "preco_pintura": 0.0,
+    "condicoes_texto": [
+        {
+            "id": "a4c39c15",
+            "texto": "Os desenhos dever\u00e3o ser fornecidos no formato .DXF ou .DWG em escala 1:1 com a respectiva indica\u00e7\u00e3o de revis\u00e3o. Pe\u00e7as cortadas fora da sua verdadeira grandeza ser\u00e3o de responsabilidade do cliente."
+        },
+        {
+            "id": "3188e821",
+            "texto": "TOLERANCIA CORTE <=0,2mm e <=1,00mm | TOLER\u00c2NCIA DOBRA: +/- 1,5mm."
+        },
+        {
+            "id": "1e348bf6",
+            "texto": "Furos com di\u00e2metro menor que a espessura da chapa ser\u00e3o somente marcados."
+        },
+        {
+            "id": "1e230f4e",
+            "texto": "A produ\u00e7\u00e3o somente ser\u00e1 iniciada quando:\n* Recebido pedido do cliente E / OU recebimento da mat\u00e9ria-prima (no caso de beneficiamento).\n* Recebido a confirma\u00e7\u00e3o por e-mail aprovando a proposta comercial."
+        },
+        {
+            "id": "c72a1de0",
+            "texto": "Hor\u00e1rio para entrega e retirada de mercadorias: 08h \u00e0s 12h | 14h \u00e0s 17h."
+        },
+        {
+            "id": "db613992",
+            "texto": "No processo de corte pode haver empenamento das pe\u00e7as (algo normal devida a alta temperatura). O cliente deve especificar no ato da cota\u00e7\u00e3o a necessidade de mant\u00ea-las planas."
+        }
+    ]
+}

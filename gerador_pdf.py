@@ -151,30 +151,30 @@ class NumberedCanvas(canvas.Canvas):
             except Exception as e:
                 # Text fallback if image loading fails
                 self.setFont("Helvetica-Bold", 16)
-                self.setFillColor(colors.HexColor("#000000"))
+                self.setFillColor(colors.HexColor("#0f172a"))
                 self.drawString(36, 765, getattr(self, 'company_name', "ORÇAMENTO INDUSTRIAL"))
         else:
             self.setFont("Helvetica-Bold", 16)
-            self.setFillColor(colors.HexColor("#000000"))
+            self.setFillColor(colors.HexColor("#0f172a"))
             self.drawString(36, 765, getattr(self, 'company_name', "ORÇAMENTO INDUSTRIAL"))
             
         # Número do Orçamento
         num_orcamento = getattr(self, 'num_orcamento', '0001')
         self.setFont("Helvetica-Bold", 14)
-        self.setFillColor(colors.HexColor("#000000"))
+        self.setFillColor(colors.HexColor("#0f172a"))
         self.drawRightString(559, 765, f"Nº Orçamento : {num_orcamento}")
         
-        # Linha do Cabeçalho - Neobrutalist bold line
-        self.setStrokeColor(colors.HexColor("#000000"))
-        self.setLineWidth(1.5)
+        # Linha do Cabeçalho - Clean line
+        self.setStrokeColor(colors.HexColor("#cbd5e1"))
+        self.setLineWidth(0.8)
         self.line(36, 740, 559, 740)
         
         # 2. RODAPÉ (Em todas as páginas)
-        self.setStrokeColor(colors.HexColor("#000000"))
-        self.setLineWidth(1.5)
+        self.setStrokeColor(colors.HexColor("#cbd5e1"))
+        self.setLineWidth(0.8)
         self.line(36, 40, 559, 40)
         self.setFont("Helvetica", 8)
-        self.setFillColor(colors.HexColor("#000000"))
+        self.setFillColor(colors.HexColor("#64748b"))
         self.drawString(36, 25, f"{getattr(self, 'company_name', 'Orçamento')} — Todos os direitos reservados.")
         
         page_text = f"Página {self._pageNumber} de {page_count}"
@@ -208,9 +208,9 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     styles = getSampleStyleSheet()
     
     # Estilos customizados
-    style_normal = ParagraphStyle('Normal_Custom', parent=styles['Normal'], fontSize=8, leading=10, textColor=colors.HexColor("#000000"))
+    style_normal = ParagraphStyle('Normal_Custom', parent=styles['Normal'], fontSize=8, leading=10, textColor=colors.HexColor("#334155"))
     style_bold = ParagraphStyle('Bold_Custom', parent=style_normal, fontName='Helvetica-Bold')
-    style_h2 = ParagraphStyle('H2_Custom', parent=styles['Heading2'], fontSize=11, leading=14, fontName='Helvetica-Bold', textColor=colors.HexColor("#000000"), spaceBefore=10, spaceAfter=6)
+    style_h2 = ParagraphStyle('H2_Custom', parent=styles['Heading2'], fontSize=11, leading=14, fontName='Helvetica-Bold', textColor=colors.HexColor("#0f172a"), spaceBefore=10, spaceAfter=6)
     style_cell = ParagraphStyle('Cell_Custom', parent=style_normal, fontSize=8, leading=9)
     style_cell_center = ParagraphStyle('Cell_Center_Custom', parent=style_cell, alignment=1)
     style_cell_bold = ParagraphStyle('Cell_Bold_Custom', parent=style_cell, fontName='Helvetica-Bold')
@@ -256,7 +256,7 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     
     # === SEÇÃO 2: TABELA DE ITENS ===
     # A4 printable area width is 595 - 72 = 523
-    col_widths = [25, 65, 120, 45, 80, 30, 78, 80]
+    col_widths = [20, 65, 120, 55, 75, 30, 78, 80]
     table_data = [[
         Paragraph("<b>ITEM</b>", style_cell_bold_center),
         Paragraph("<b>DIMENSÃO</b>", style_cell_bold_center),
@@ -329,8 +329,8 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
         
     items_table = Table(table_data, colWidths=col_widths, repeatRows=1)
     items_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#FFD93D")), # Neobrutalist Yellow Accent
-        ('GRID', (0,0), (-1,-1), 1.5, colors.HexColor("#000000")), # Bold black borders
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#f1f5f9")), # Light grey header background
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")), # Thin grey grid lines
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('TOPPADDING', (0,0), (-1,-1), 6),
         ('BOTTOMPADDING', (0,0), (-1,-1), 6),
@@ -358,11 +358,11 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
         ajuste_text = f"(* Inclui {tipo_aj} de {abs(ajuste_val):.1f}%)"
 
     totais_cell = [
-        Paragraph(f"<b>VALOR TOTAL : R$ {total_nf:,.2f}</b>", ParagraphStyle('TotalVal', parent=style_cell_bold, fontSize=12, leading=14, alignment=2, textColor=colors.HexColor("#000000"))),
-        Paragraph(f"({tx_ipi_desc} / Benef. Isento)", ParagraphStyle('TotalValSub', parent=style_cell, alignment=2, textColor=colors.HexColor("#000000"))),
+        Paragraph(f"<b>VALOR TOTAL : R$ {total_nf:,.2f}</b>", ParagraphStyle('TotalVal', parent=style_cell_bold, fontSize=12, leading=14, alignment=2, textColor=colors.HexColor("#1e293b"))),
+        Paragraph(f"({tx_ipi_desc} / Benef. Isento)", ParagraphStyle('TotalValSub', parent=style_cell, alignment=2, textColor=colors.HexColor("#475569"))),
     ]
     if ajuste_text:
-        totais_cell.append(Paragraph(ajuste_text, ParagraphStyle('TotalAjuste', parent=style_cell, alignment=2, textColor=colors.HexColor("#000000"), fontName='Helvetica-Bold')))
+        totais_cell.append(Paragraph(ajuste_text, ParagraphStyle('TotalAjuste', parent=style_cell, alignment=2, textColor=colors.HexColor("#475569"), fontName='Helvetica-Bold')))
     totais_cell.extend([
         Spacer(1, 4),
         Paragraph(f"Total de {total_itens_qtd} peças", ParagraphStyle('TotalQty', parent=style_cell, alignment=2)),
@@ -376,64 +376,65 @@ def gerar_orcamento_pdf(itens, config_global, cliente_info, emissor_info, prazos
     summary_table = Table(summary_data, colWidths=[300, 223])
     summary_table.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('GRID', (0,0), (-1,-1), 2.0, colors.HexColor("#000000")), # Thick black grid
+        ('GRID', (0,0), (-1,-1), 0.8, colors.HexColor("#94a3b8")), # Thin slate grey grid
         ('TOPPADDING', (0,0), (-1,-1), 8),
         ('BOTTOMPADDING', (0,0), (-1,-1), 8),
         ('LEFTPADDING', (0,0), (-1,-1), 8),
         ('RIGHTPADDING', (0,0), (-1,-1), 8),
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#FFFDF5")), # Paper creme background
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#f8fafc")), # Light blue-grey background
     ]))
     
     story.append(KeepTogether(summary_table))
     
     # === PÁGINA 2: CONDIÇÕES GERAIS DE FORNECIMENTO ===
-    story.append(PageBreak())
-    
-    story.append(Paragraph("CONDIÇÕES GERAIS DE FORNECIMENTO", style_h2))
-    story.append(Spacer(1, 5))
-    
-    # 7 Tópicos de condições
-    terms_list = prazos_condicoes.get('condicoes_texto', [])
-    if not terms_list:
-        # Default terms if none are saved
-        terms_list = [
-            "Os desenhos deverão ser fornecidos no formato .DXF ou .DWG em escala 1:1 com a respectiva indicação de revisão. Peças cortadas fora da sua verdadeira grandeza serão de responsabilidade do cliente.",
-            "TOLERANCIA CORTE <=0,2mm e <=1,00mm | TOLERÂNCIA DOBRA: +/- 1,5mm.",
-            "Furos com diâmetro menor que a espessura da chapa serão somente marcados.",
-            "A produção somente será iniciada quando:\n* Recebido pedido do cliente E / OU recebimento da matéria-prima (no caso de beneficiamento).\n* Recebido a confirmação por e-mail aprovando a proposta comercial.",
-            "Horário para entrega e retirada de mercadorias: 08h às 12h | 14h às 17h.",
-            "No processo de corte pode haver empenamento das peças (algo normal devida a alta temperatura). O cliente deve especificar no ato da cotação a necessidade de mantê-las planas.",
-            "Prezados clientes, concluído o pedido de BENEFICIAMENTO, a sucata gerada será mantida em até, no máximo, 4 dias úteis. Após este período será descartada junto com outras sucatas pelo motivo de logística e espaço. Dessa forma, tornando-se de propriedade da empresa."
+    if prazos_condicoes.get('incluir_termos', True):
+        story.append(PageBreak())
+        
+        story.append(Paragraph("CONDIÇÕES GERAIS DE FORNECIMENTO", style_h2))
+        story.append(Spacer(1, 5))
+        
+        # 7 Tópicos de condições
+        terms_list = prazos_condicoes.get('condicoes_texto', [])
+        if not terms_list:
+            # Default terms if none are saved
+            terms_list = [
+                "Os desenhos deverão ser fornecidos no formato .DXF ou .DWG em escala 1:1 com a respectiva indicação de revisão. Peças cortadas fora da sua verdadeira grandeza serão de responsabilidade do cliente.",
+                "TOLERANCIA CORTE <=0,2mm e <=1,00mm | TOLERÂNCIA DOBRA: +/- 1,5mm.",
+                "Furos com diâmetro menor que a espessura da chapa serão somente marcados.",
+                "A produção somente será iniciada quando:\n* Recebido pedido do cliente E / OU recebimento da matéria-prima (no caso de beneficiamento).\n* Recebido a confirmação por e-mail aprovando a proposta comercial.",
+                "Horário para entrega e retirada de mercadorias: 08h às 12h | 14h às 17h.",
+                "No processo de corte pode haver empenamento das peças (algo normal devida a alta temperatura). O cliente deve especificar no ato da cotação a necessidade de mantê-las planas.",
+                "Prezados clientes, concluído o pedido de BENEFICIAMENTO, a sucata gerada será mantida em até, no máximo, 4 dias úteis. Após este período será descartada junto com outras sucatas pelo motivo de logística e espaço. Dessa forma, tornando-se de propriedade da empresa."
+            ]
+            
+        for index, term in enumerate(terms_list):
+            term_p = Paragraph(f"<b>{index+1}.</b> {term.replace('\n', '<br/>')}", style_normal)
+            story.append(term_p)
+            story.append(Spacer(1, 8))
+            
+        story.append(Spacer(1, 15))
+        
+        # Tabela de Condições Gerais de Venda
+        terms_grid_data = [
+            [Paragraph("<b>Prazo de Entrega:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('prazo_entrega', '7 Dias úteis após recebimento do pedido'), style_normal)],
+            [Paragraph("<b>Forma de Pagamento:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('forma_pagamento', 'A Combinar'), style_normal)],
+            [Paragraph("<b>Pedido Mínimo:</b>", style_cell_bold), Paragraph(f"R$ {prazos_condicoes.get('pedido_minimo', 500.0):,.2f}", style_normal)],
+            [Paragraph("<b>Frete:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('frete', 'FOB'), style_normal)],
+            [Paragraph("<b>Impostos:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('impostos_descricao', 'ICMS INCLUSO - PIS/COFINS INCLUSO | IPI A INCLUIR'), style_normal)],
         ]
         
-    for index, term in enumerate(terms_list):
-        term_p = Paragraph(f"<b>{index+1}.</b> {term.replace('\n', '<br/>')}", style_normal)
-        story.append(term_p)
-        story.append(Spacer(1, 8))
+        terms_grid_table = Table(terms_grid_data, colWidths=[130, 393])
+        terms_grid_table.setStyle(TableStyle([
+            ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#cbd5e1")), # Thin grey border
+            ('BACKGROUND', (0,0), (0,-1), colors.HexColor("#f1f5f9")), # Light grey column headers
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+            ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ]))
         
-    story.append(Spacer(1, 15))
-    
-    # Tabela de Condições Gerais de Venda
-    terms_grid_data = [
-        [Paragraph("<b>Prazo de Entrega:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('prazo_entrega', '7 Dias úteis após recebimento do pedido'), style_normal)],
-        [Paragraph("<b>Forma de Pagamento:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('forma_pagamento', 'A Combinar'), style_normal)],
-        [Paragraph("<b>Pedido Mínimo:</b>", style_cell_bold), Paragraph(f"R$ {prazos_condicoes.get('pedido_minimo', 500.0):,.2f}", style_normal)],
-        [Paragraph("<b>Frete:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('frete', 'FOB'), style_normal)],
-        [Paragraph("<b>Impostos:</b>", style_cell_bold), Paragraph(prazos_condicoes.get('impostos_descricao', 'ICMS INCLUSO - PIS/COFINS INCLUSO | IPI A INCLUIR'), style_normal)],
-    ]
-    
-    terms_grid_table = Table(terms_grid_data, colWidths=[130, 393])
-    terms_grid_table.setStyle(TableStyle([
-        ('GRID', (0,0), (-1,-1), 1.5, colors.HexColor("#000000")), # Bold black border
-        ('BACKGROUND', (0,0), (0,-1), colors.HexColor("#C4B5FD")), # Neobrutalist Violet Accent
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    
-    story.append(KeepTogether(terms_grid_table))
+        story.append(KeepTogether(terms_grid_table))
     
     # Define a custom drawPage function to apply custom attributes to canvas
     def apply_canvas_data(canvas, doc):

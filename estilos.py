@@ -7,6 +7,7 @@ CSS = """
    ============================================================ */
 html, body, [class*="css"], .stApp {
     font-family: 'Space Grotesk', sans-serif !important;
+    overflow-anchor: none !important;
 }
 
 /* ============================================================
